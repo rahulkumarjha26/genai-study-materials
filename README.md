@@ -160,46 +160,150 @@ flowchart TD
 
 ---
 
-### 1.2 What Each Piece Does
+### 1.2 The Jargon Buster: What Every Technical Term ACTUALLY Means
 
-#### A. Document Ingestion & Layout-Aware Parsing
-* **The Problem:** Standard PDF text strippers mash tables, headers, and footnotes into an unreadable soup, ruining vector similarity.
-* **The Solution:** Use **Azure AI Document Intelligence** (formerly Form Recognizer). It parses documents by layout, extracts markdown tables cleanly with rows/columns intact, and preserves reading order.
-* **Incremental Updates:** Documents are placed in **Azure Blob Storage**. An **Azure Event Grid** trigger detects additions/modifications and fires an event so we only re-index updated documents (no full re-indexing).
-
-#### B. Chunking Strategy: Parent-Child (Hierarchical)
-* **The Problem:** Small chunks (200 tokens) are great for accurate embedding matches, but lack context for generation. Large chunks (1000 tokens) dilute embedding semantics.
-* **The Solution (Parent-Child):**
-  - **Child Chunks (200-300 tokens):** Indexed for semantic vector search.
-  - **Parent Document/Section (1000-1500 tokens):** Stored in metadata or blob.
-  - When a child chunk matches the query, we pass its **parent context** to the LLM. The LLM gets the complete picture without embedding noise.
-
-#### C. Dual-Embedding Strategy: Dense + Sparse (Hybrid Search)
-* **Dense Vectors (`text-embedding-3-large`):** Captures conceptual meaning (e.g., *"financial health"* matches *"profit margins and cash flow"*).
-* **Sparse Vectors (BM25):** Captures exact keywords, part numbers, SKU codes, employee IDs, and acronyms where vector search fails.
-* **Reciprocal Rank Fusion (RRF):** Combines the ranks from both search results deterministically:
-  $$\text{RRF Score}(d) = \sum_{m \in \{\text{dense}, \text{sparse}\}} \frac{1}{k + \text{Rank}_m(d)} \quad (k \approx 60)$$
-
-#### D. Enterprise Security & Access Control (Microsoft Entra ID ACLs)
-* **Crucial Enterprise Concept:** If an employee isn't allowed to read the CEO's executive compensation memo on SharePoint, the RAG system must **never** return it or use it as context.
-* **How It Works:** During ingestion, extract the Access Control List (ACL) from SharePoint/Confluence. Store allowed `group_ids` and `user_ids` as a filterable collection in **Azure AI Search**.
-* At query time, extract the user's Entra ID claims from the bearer token and apply a hard filter:
-  `search.in(user_groups, 'group1,group2')` *before* vector ranking.
-
-#### E. Cross-Encoder Semantic Reranker
-* **Why:** Vector search retrieves candidate chunks using bi-encoders (query and document embedded independently).
-* **Reranker:** A cross-encoder model passes both the query and candidate chunk simultaneously through attention layers, scoring true semantic relevance. Reduces top 50 candidates down to the top 5 highest-signal chunks.
+Interviewers will test if you actually understand the mechanics behind these buzzwords. Here is the plain-English intuition, visual mechanics, and mathematical rationale for each.
 
 ---
 
-### 1.3 Key Architectural Trade-Offs
+#### 🧩 1. Dense Embeddings vs. Sparse Embeddings (BM25)
 
-| Decision | Option A | Option B | Why We Choose Option B for Enterprise |
+```
+[Query: "iPhone 15 Pro Max error 404"]
+       │
+       ├─── Dense Search (Semantic) ───► Understood: "smartphone flagships having web page connection issues"
+       │                                 (Misses the exact model number or error code!)
+       │
+       └─── Sparse Search (BM25) ──────► Understood: Exact matches for "iPhone", "15", "Pro", "Max", "404"
+                                         (Finds exact tech specs and error logs, misses synonyms!)
+```
+
+* **Dense Vector (`text-embedding-3-large`):**
+  - **What it is:** A list of 1,536 continuous floating-point numbers (e.g., `[0.014, -0.231, 0.891, ...]`).
+  - **How it works:** Maps sentences into a multi-dimensional semantic space. Words with similar meanings are close together (e.g., *"physician"* $\approx$ *"doctor"*).
+  - **The Blind Spot:** Completely ignores exact alphanumeric strings. If a user searches for an exact part number `XJ-900` or an error code `ERR_404_AUTH`, dense embeddings often fail because they blur the exact token into general "error" concepts.
+* **Sparse Vector (BM25 - Best Matching 25):**
+  - **What it is:** A vector where 99.9% of values are zero, except at specific dictionary positions corresponding to exact words that appear in the document.
+  - **How it works under the hood (The 3 BM25 dials):**
+    1. **Term Frequency (TF):** How often the word appears in the chunk (with diminishing returns so repeating a word 50 times doesn't break the score).
+    2. **Inverse Document Frequency (IDF):** How rare the word is across the entire 500K document set. Words like *"the"* get near-zero weight; words like *"hyperparameter"* get huge weight.
+    3. **Document Length Normalization:** Penalizes artificially long documents so they don't win simply by having more words.
+* **Why Enterprise Needs Both (Hybrid):** Dense captures *intent and synonyms*; Sparse catches *exact model names, error codes, legal clauses, and employee IDs*.
+
+---
+
+#### ⚖️ 2. Reciprocal Rank Fusion (RRF): Why We Can't Just Average Scores
+
+* **The Problem:** 
+  - Dense search gives you **Cosine Similarity scores** between `0.0` and `1.0` (e.g., `0.84`).
+  - BM25 search gives you **unbounded keyword relevance scores** (e.g., `18.6` or `124.2`).
+  - **You cannot add or average $0.84$ and $18.6$!** Their statistical distributions and scales are completely incomparable.
+* **The Solution (RRF):**
+  Throw away the raw scores completely! Only look at their **rank position** (1st place, 2nd place, 3rd place).
+
+$$\text{RRF Score}(d) = \frac{1}{60 + \text{Rank}_{\text{Dense}}(d)} + \frac{1}{60 + \text{Rank}_{\text{BM25}}(d)}$$
+
+```
+Document A: 1st in Dense (#1), 50th in BM25 (#50) 
+  RRF = 1/(60+1) + 1/(60+50) = 0.0163 + 0.0090 = 0.0253
+
+Document B: 3rd in Dense (#3), 2nd in BM25 (#2)
+  RRF = 1/(60+3) + 1/(60+2)  = 0.0158 + 0.0161 = 0.0319  <-- WINS! (High consensus across both)
+```
+* **Why the constant 60?** It prevents top-ranked outliers from dominating the score and smooths out noise between rank #1 and rank #2.
+
+---
+
+#### 🔄 3. Bi-Encoder vs. Cross-Encoder (The Reranker)
+
+This is one of the most frequently asked questions in senior GenAI interviews.
+
+```mermaid
+flowchart TD
+    subgraph BI["BI-ENCODER (Fast Candidate Search - O(1) with Index)"]
+        Q1[Query] --> Enc1[Embedding Model] --> VQ[Query Vector]
+        D1[Document] --> Enc2[Embedding Model] --> VD[Doc Vector]
+        VQ & VD --> Dot[Dot Product / Cosine Similarity]
+        Dot --> Score1[Similarity Score]
+    end
+
+    subgraph CROSS["CROSS-ENCODER (Deep Semantic Reranker - O(N) Heavy Compute)"]
+        Q2[Query] & D2[Document] --> Concat["Single Input: [CLS] Query [SEP] Document [SEP]"]
+        Concat --> Trans[Full Transformer Attention Layers\nEvery Query Token Attends to Every Doc Token]
+        Trans --> Score2[Deep Relevance Score 0 to 1]
+    end
+```
+
+| Dimension | Bi-Encoder (Search) | Cross-Encoder (Reranker) |
+| :--- | :--- | :--- |
+| **How it inputs** | Query and Doc encoded **separately** | Query and Doc concatenated and fed **together** |
+| **Cross-Attention** | ❌ None (Vectors compared only at the very end) | ✅ Full cross-attention across all tokens simultaneously |
+| **Speed** | ⚡ Milliseconds (pre-computed document vectors) | 🐢 Heavy compute (requires full forward pass per doc) |
+| **Where used** | Searching 500,000 documents down to **Top 50** | Reranking those **Top 50** candidates down to **Top 5** |
+
+---
+
+#### 📦 4. Parent-Child (Hierarchical) Chunking
+
+* **The Classical Chunking Dilemma:**
+  - **Small Chunks (150-250 tokens):** High embedding accuracy (precise semantic vector), but when fed to the LLM, the model hallucinates because sentences are severed and missing surrounding context.
+  - **Large Chunks (1000-1500 tokens):** Great broad context for the LLM to read, but the embedding vector is a blurry average of 4 different topics, meaning vector search fails to retrieve it.
+* **The Mechanism:**
+  1. Slice a document into a large **Parent Chunk** (e.g., an entire section: 1200 tokens).
+  2. Subdivide that parent into 4 small **Child Chunks** (e.g., 300 tokens each).
+  3. **Index only the Child Chunks** into Azure AI Search for vector search.
+  4. When the user's query hits a Child Chunk, **retrieve its Parent Chunk** and inject the Parent into the LLM's prompt.
+  - *Result:* Needle-point search accuracy + complete contextual clarity for the LLM.
+
+---
+
+#### 🪆 5. Matryoshka Embeddings (MRL)
+
+* **Analogy:** Russian nesting dolls (a doll inside a doll inside a doll).
+* **What it is:** Normally, if an embedding model produces 3,072 dimensions, every dimension is equally weighted. If you chop off the last 2,000 numbers, the vector breaks.
+* **How Matryoshka Representation Learning (MRL) works:**
+  Models like OpenAI's `text-embedding-3-large` are explicitly trained so that the **most important semantic information is front-loaded in the first 256, 512, or 1024 dimensions**.
+* **Why it matters for interviews:**
+  - You can truncate 3,072-dimensional vectors to **1,024 dimensions** directly in code.
+  - **Benefits:** 66% reduction in vector database storage costs, 3x faster vector search latency, with less than a 1.5% drop in retrieval accuracy.
+
+---
+
+#### 🔒 6. Microsoft Entra ID Access Control Lists (ACLs): Pre-filtering vs. Post-filtering
+
+* **The Problem:** In an enterprise with SharePoint/Confluence, User A (Junior Analyst) must NOT see files belonging to HR (Executive Compensation) or M&A (Acquisitions).
+* **The Rookie Mistake (Post-Filtering):**
+  The RAG system searches all 500K docs, finds the top 5 relevant docs, and then checks: *"Does User A have permission?"* If all 5 docs are restricted, the user gets zero results, even though there were 5 other valid docs they were allowed to see! Plus, you risked data leakage in your logs.
+* **The Enterprise Solution (Pre-Filtering):**
+  1. During ingestion, parse document permissions: `allowed_principals = ["group_sales", "user_rahul", "tenant_marketing"]`. Store this as a filterable collection field in Azure AI Search.
+  2. When User A queries, decode their Entra ID JWT token: they belong to `["group_sales", "user_rahul"]`.
+  3. Pre-filter the index directly inside Azure AI Search:
+     ```json
+     filter: "allowed_principals/any(p: search.in(p, 'group_sales, user_rahul'))"
+     ```
+  4. Only permitted documents are even considered in the vector math. Zero data leakage, maximum compliance.
+
+---
+
+#### 📄 7. Layout-Aware Parsing vs. Regular OCR
+
+* **Regular OCR (e.g., raw Tesseract):** Reads page strictly left-to-right, top-to-bottom. If a document has 2 columns, it reads line 1 of Column 1, then line 1 of Column 2! Tables get turned into random disjointed text.
+* **Layout-Aware Parsing (Azure AI Document Intelligence):**
+  - Uses computer vision bounding-box detection to recognize page topology (headers, 2-column layouts, sidebars, footnotes).
+  - Explicitly reconstructs tables into **structured Markdown (`| Col 1 | Col 2 |`)** or HTML `<table>` tags.
+  - Preserves cell relationships so the embedding model and LLM understand that `$4.2M` belongs to `Q3 Revenue` and not `Q2 Expenses`.
+
+---
+
+### 1.3 Key Architectural Trade-Offs Matrix
+
+| Component | Option A | Option B (Production Choice) | Why? (The Interview Rationale) |
 | :--- | :--- | :--- | :--- |
-| **Search Type** | Dense Vector Only | Hybrid (Dense + BM25) + RRF | Pure vector search fails on product SKUs, acronyms, and names. Hybrid is mandatory. |
-| **Chunking** | Fixed-size (500 tokens) | Parent-Child (Hierarchical) | Fixed-size splits sentences and loses context. Parent-child gives precise search + broad generation context. |
-| **Access Control** | Post-filtering (filter LLM output) | Pre-filtering (filter in Search Index via ACLs) | Post-filtering leaks data, wastes tokens, and violates enterprise compliance. Pre-filtering is secure and fast. |
-| **Embedding Dims** | 1536 dims | 3072 dims (reduced via Matryoshka) | Azure `text-embedding-3-large` supports Matryoshka embeddings (truncate to 1024 or 1536 without loss) to cut storage by 50%. |
+| **Search Mechanism** | Dense Vector Only | Hybrid (Dense + BM25) + RRF | Pure vector search fails on product SKUs, acronyms, and names. Hybrid covers both semantic meaning and exact keywords. |
+| **Score Merging** | Linear Weighted Sum $(\alpha \cdot \text{Dense} + \beta \cdot \text{BM25})$ | Reciprocal Rank Fusion (RRF) | Linear sum requires manual tuning of $\alpha$ and $\beta$ across document types. RRF is scale-invariant and zero-tuning. |
+| **Chunking** | Fixed Token Size (500 tokens) | Parent-Child (Hierarchical) | Fixed chunking severs sentences and table rows. Parent-child gives pinpoint vector search with broad context for generation. |
+| **Security** | Post-filtering LLM output | Pre-filtering Search Index via Entra ID ACLs | Post-filtering causes empty responses, high latency, and violates compliance. Pre-filtering guarantees zero unauthorized exposure. |
+| **Reranking** | Re-run LLM on all chunks | Cross-Encoder Reranker model | Re-running LLM on 50 chunks costs $0.10+ per query and takes 4 seconds. Cross-encoders take ~50ms and cost fractions of a cent. |
 
 ---
 
@@ -207,18 +311,18 @@ flowchart TD
 
 When the interviewer asks: **"How do you design an enterprise RAG system for 500K documents with permissions?"**
 
-> **1. Framing & Requirements (30s):**
-> *"I treat enterprise RAG as three distinct subsystems: An asynchronous secure ingestion pipeline, a hybrid retrieval engine with permission pre-filtering, and an observable generation layer with guardrails."*
+> **1. Framing & High-Level Architecture (30s):**
+> *"I treat enterprise RAG as three distinct decoupled stages: an asynchronous layout-aware ingestion pipeline, a permission-filtered hybrid retrieval engine, and an observable generation layer with verifiable citations."*
 >
 > **2. Ingestion & Security (60s):**
-> *"For 500K documents across SharePoint and Confluence, documents flow into Azure Blob Storage with Azure Event Grid triggers for incremental updates. We parse them with layout-aware parsers (Azure AI Document Intelligence) to preserve tables and headers.
-> Critically, during ingestion, we extract the document's Entra ID Access Control List (ACL) and store allowed user/group IDs in Azure AI Search. We use parent-child chunking: 250-token child chunks for vector indexing, mapped to 1200-token parent sections."*
+> *"For 500K documents across SharePoint and Confluence, files land in Azure Blob Storage triggering Azure Functions. We parse documents using Azure AI Document Intelligence to preserve layout and tabular structures as markdown.
+> We use a **Parent-Child chunking** strategy: 250-token child chunks for vector indexing, linked to 1200-token parent sections. Crucially, we extract Microsoft Entra ID Access Control Lists (ACLs) and store permitted security groups directly on each chunk in Azure AI Search."*
 >
-> **3. Retrieval & Serving (60s):**
-> *"At query time, the user authenticates via Microsoft Entra ID through Azure API Management. We extract their security groups and issue a hybrid search in Azure AI Search combining dense embeddings (`text-embedding-3-large`) and sparse BM25, pre-filtered by their security IDs.
-> We combine results using Reciprocal Rank Fusion (RRF), run the top 50 candidates through Azure AI Search's Semantic Reranker down to top 5, and assemble the parent context."*
+> **3. Hybrid Retrieval & Reranking (60s):**
+> *"When a user queries via Azure API Management, we decode their Entra ID JWT claims and issue a **pre-filtered hybrid search** in Azure AI Search. This executes dense retrieval via `text-embedding-3-large` (truncated to 1024 dims via Matryoshka learning) and sparse BM25 for exact keyword matching.
+> We merge candidate ranks using **Reciprocal Rank Fusion (RRF)** to eliminate scale mismatch, and pass the top 50 candidates through a **Cross-Encoder Semantic Reranker** to prune down to the top 5 highest-signal parent chunks."*
 >
 > **4. Generation & Observability (30s):**
-> *"The context is passed to Azure OpenAI GPT-4o with strict citation formatting and an explicit refusal prompt if confidence is low. We run Azure AI Content Safety and log inputs, latency, and faithfulness scores via MLflow to catch drift."*
+> *"We feed the parent context into Azure OpenAI GPT-4o with a strict grounding prompt: requiring verbatim source citations and an explicit refusal if context confidence is below threshold. All requests are logged in MLflow to monitor faithfulness, latency, and answer relevance."*
 
 ---
