@@ -4,17 +4,92 @@
 
 ---
 
-## 🗺️ Master Curriculum Roadmap (By Increasing Difficulty)
+## 🗺️ Master Curriculum Roadmap (Mind Map)
 
 ```mermaid
-flowchart LR
-    L1[Level 1: Enterprise RAG & Ingestion] --> L2[Level 2: Latency, Scale & Caching]
-    L2 --> L3[Level 3: Hallucination Mitigation & Evals]
-    L3 --> L4[Level 4: Fine-Tuning vs RAG vs Prompting]
-    L4 --> L5[Level 5: Context Window & KV Cache]
-    L5 --> L6[Level 6: Multi-Agent Systems & Tool Use]
-    L6 --> L7[Level 7: MLOps, CI/CD & Incident Triage]
-    L7 --> L8[Level 8: ML Leadership & Cross-Cloud]
+mindmap
+  root((GenAI & ML Lead Mastery))
+    Level 1: Enterprise RAG & Ingestion
+      Ingestion & Layout Parsing
+        Azure AI Document Intelligence
+        Table & Markdown Structure Preservation
+      Parent-Child Chunking
+        250-token child vectors for search
+        1200-token parent context for LLM
+      Hybrid Retrieval
+        Dense text-embedding-3-large
+        Sparse BM25 Keyword Search
+        Reciprocal Rank Fusion RRF
+      Enterprise Security
+        Microsoft Entra ID ACL Filtering
+        Zero-Trust Pre-Retrieval Pruning
+    Level 2: Scale, Latency & Caching
+      Performance Targets
+        Sub-2s End-to-End Latency
+        1000+ Concurrent Business Users
+      Multi-Layer Caching Hierarchy
+        L1: Exact Match In-Memory Cache
+        L2: Semantic Vector Cache in Redis
+        L3: Embedding & Retrieved Chunk Cache
+      Serving Infrastructure
+        Azure OpenAI PTU Provisioned Throughput
+        FastAPI Async Orchestration on AKS
+    Level 3: Hallucination Mitigation & Evals
+      Hallucination Root Causes
+        Parametric vs Source Conflict
+        Retrieval Recall Failure
+        Reasoning / Synthesis Misattribution
+      Detection & Guardrails
+        NLI-Based Faithfulness Verification
+        Deterministic Citation Validator
+        Calibrated Refusal Threshold
+      Evaluation Framework
+        MLflow LLM Evaluation Metrics
+        Golden Ground-Truth Benchmark
+    Level 4: Fine-Tuning vs RAG vs Prompting
+      Decision Framework & ROI
+        When to Prompt vs RAG vs Fine-Tune
+        Cutting 50K per month Bill by 80%
+      Query Routing Architecture
+        Intent Classifier Gateway
+        Category-Specific Small Model Routing
+      Efficient Fine-Tuning
+        LoRA Low-Rank Adaptation
+        QLoRA 4-bit Quantization
+        Preventing Catastrophic Forgetting
+    Level 5: Context Window & KV Cache
+      500-Page Document Ingestion
+        Lost in the Middle Phenomenon
+        Hierarchical Summarization Trees
+      Inference Memory Mechanics
+        KV Cache Memory Footprint Math
+        PagedAttention & vLLM Architecture
+        State-Space Models & Mamba
+    Level 6: Multi-Agent Systems & Tools
+      Orchestration & Planning
+        Supervisor & Graph State Machine
+        ReAct vs Tree of Thoughts
+      Safety & Control Loops
+        Loop Prevention via State Hashing
+        Token Budget & Circuit Breaker
+      Inter-Agent Consensus
+        Consensus Fact-Checking
+        Async Parallel Execution
+    Level 7: MLOps, CI/CD & Production Triage
+      MLOps Maturity Evolution
+        Level 0 Notebooks to Level 3 Full Auto
+        Weekly Retraining via Azure ML Pipelines
+      Production Incident Triage
+        Un-alerted Outage Root Cause Analysis
+        Data Drift vs Concept Drift vs Infra
+        Shadow Mode & Automated Rollback
+    Level 8: ML Leadership & Multi-Cloud
+      Engineering Leadership
+        Coaching Junior ML Engineers
+        Cross-Functional Alignment DS vs Eng vs Product
+      Multi-Cloud Architecture
+        Azure & AWS Portability
+        Terraform Infrastructure as Code
 ```
 
 | Level | Topic | Core Interview Question Mapped |
