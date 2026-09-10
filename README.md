@@ -326,3 +326,181 @@ When the interviewer asks: **"How do you design an enterprise RAG system for 500
 > *"We feed the parent context into Azure OpenAI GPT-4o with a strict grounding prompt: requiring verbatim source citations and an explicit refusal if context confidence is below threshold. All requests are logged in MLflow to monitor faithfulness, latency, and answer relevance."*
 
 ---
+
+# Level 2: Scale, Low Latency (<2s) & Multi-Level Caching
+
+> **Target Interview Questions:**
+> - *"How do you achieve <2 second latency with 1,000+ concurrent users in an enterprise RAG system?"* (Hard GenAI Q1 Part C)
+> - *"Describe your multi-level caching strategy across different layers."* (Hard GenAI Q1 Part C)
+> - *"Your deep learning model works great in research but fails to scale for production business needs. How do you bridge the gap?"* (ML Lead Q2)
+
+---
+
+### 2.1 The High-Concurrency Serving Flowchart (<2s Latency)
+
+```mermaid
+flowchart TD
+    User([1,000+ Concurrent Users]) --> APIM[Azure API Management\nRate Limiting + Request Coalescing]
+    
+    subgraph CACHE_LAYER["Multi-Layer Caching Hierarchy"]
+        APIM --> L1{L1: Exact Match Cache\nHash: SHA256(Query + UserACL)}
+        L1 -- "Hit (5ms)" --> ReturnCached[Return Cached Answer]
+        
+        L1 -- "Miss" --> EmbedQ[Embed Query\ntext-embedding-3-large]
+        EmbedQ --> L2{L2: Semantic Vector Cache\nAzure Cache for Redis Enterprise\nCosine Sim > 0.95}
+        L2 -- "Hit (35ms)" --> ReturnCached
+    end
+
+    subgraph RETRIEVAL_LAYER["Parallel Retrieval & Pruning (150ms)"]
+        L2 -- "Miss" --> Coalesce[Request Coalescing / Single-Flight Engine]
+        Coalesce --> SearchCluster[(Azure AI Search\nHNSW Index: efSearch=64)]
+        
+        SearchCluster --> ParallelProc["Async Parallel Pruning & Reranking\nCross-Encoder ONNX Runtime on GPU"]
+    end
+
+    subgraph INFERENCE_LAYER["Low-Latency Generation (1.2s - 1.5s)"]
+        ParallelProc --> PTU[Azure OpenAI Service\nPTU: Provisioned Throughput Units\nDedicated GPU Capacity]
+        
+        PTU -- SSE Streaming Tokens --> StreamEngine[FastAPI Streaming Engine\nChunked Transfer-Encoding]
+        StreamEngine --> StreamUser([User Sees First Token in <400ms])
+    end
+
+    subgraph FALLBACK["Resilience & Graceful Degradation"]
+        PTU -. "Latency > 1.8s or 429" .-> CircuitBreaker{Circuit Breaker\nTrips Open}
+        CircuitBreaker --> FastModel[Fallback: GPT-4o-mini or Distilled Model]
+        CircuitBreaker --> StaleCache[Fallback: Stale Cache / Top Extracted Passage]
+    end
+```
+
+---
+
+### 2.2 The Jargon Buster: Under-the-Hood Mechanics
+
+Interviewers ask these questions to see if you have actually built low-latency systems or just called raw APIs.
+
+---
+
+#### ⚡ 1. Exact Match Caching vs. Semantic Caching (Redis Vector Search)
+
+```
+User A asks: "What is our company maternity leave policy?"
+User B asks: "How many weeks of maternity leave do employees get?"
+```
+
+* **Exact Match Cache (L1):**
+  - **Mechanism:** Computes a cryptographic hash of the raw string: `SHA256("What is our company maternity leave policy?" + user_group_id)`.
+  - **Storage:** Stored in high-speed in-memory Redis key-value store.
+  - **Latency:** **~2ms to 5ms.**
+  - **The Limitation:** User B asks the exact same question with slightly different phrasing. Exact match gives a **Cache Miss**.
+* **Semantic Vector Cache (L2):**
+  - **Mechanism:** When query embedding $\vec{q}$ is generated, query Redis Enterprise using vector similarity search against previously answered queries.
+  - **The Cosine Similarity Threshold ($\tau$):**
+    - If $\cos(\vec{q}, \vec{q}_{\text{cached}}) \ge 0.95$, the system determines the semantic intent is identical and returns the cached answer.
+    - If $\cos(\vec{q}, \vec{q}_{\text{cached}}) < 0.95$, it proceeds to full RAG retrieval.
+  - **Latency:** **~30ms to 50ms** (Bypasses vector search, reranker, and the entire LLM call!).
+  - **Cache Invalidation:** If a document is updated in Blob Storage, invalidate all semantic cache entries tagged with that `document_id`.
+
+---
+
+#### 🏭 2. Azure OpenAI PTU (Provisioned Throughput Units) vs. PAYG (Pay-As-You-Go)
+
+This is the #1 reason enterprise LLM systems fail at scale during pilot tests.
+
+```
+PAYG (Pay-As-You-Go):
+Requests ──► Shared Multi-Tenant GPU Pool ──► Random Latency Spikes (2s to 12s) + HTTP 429 Rate Limits
+
+PTU (Provisioned Throughput Units):
+Requests ──► Dedicated Reserved GPUs (Fixed Capacity) ──► Deterministic Latency (<1.5s) + ZERO 429s
+```
+
+* **The PAYG Trap:** Pay-as-you-go shares GPUs with other Azure customers. During peak hours (e.g., 2 PM EST), Azure throttles you with `HTTP 429: Too Many Requests`, and response latency swings unpredictably between 2 seconds and 10+ seconds.
+* **The PTU Solution:** You reserve dedicated processing units (PTUs) for your Azure OpenAI deployment.
+  - **Deterministic Throughput:** Guarantees exact capacity (e.g., 100 PTUs $\approx$ 1,000 tokens/sec sustained).
+  - **Zero Multi-Tenant Contention:** Response time is rock-solid and predictable.
+  - **Cost Rule of Thumb:** If your organization generates steady traffic above ~150,000 requests/day, PTU is actually **cheaper** than PAYG, while eliminating latency spikes.
+
+---
+
+#### 🏎️ 3. Vector DB Index Tuning: HNSW Parameters (`m`, `efConstruction`, `efSearch`)
+
+* **What is HNSW?** Hierarchical Navigable Small World graphs. Think of it like an express highway system: top layers have long-distance jumps across concepts; lower layers have fine-grained local streets.
+* **The 3 Dials in Azure AI Search:**
+  1. **`m` (Bi-directional Link Count, e.g., 16 or 32):** The number of connection edges per node. Higher `m` = higher retrieval recall, but uses more RAM.
+  2. **`efConstruction` (e.g., 200 to 400):** How many neighbors to evaluate during *indexing time*. Higher = slower indexing, but builds a much better search graph.
+  3. **`efSearch` (e.g., 32 to 64):** How deep the priority queue explores during *query time*.
+* **The Latency Optimization Dial:**
+  - In production, set `efSearch = 48` or `64`. Setting it to `400` only gains 0.5% in recall but quadruples search latency from 15ms to 65ms!
+
+---
+
+#### 🤝 4. Request Coalescing (Single-Flight Pattern)
+
+* **The Problem:** The CEO announces an acquisition in an all-hands meeting. Suddenly, 500 employees simultaneously ask the exact same question: *"What does the acquisition mean for stock options?"*
+* **Without Coalescing:** The system fires 500 identical vector searches, 500 identical reranks, and 500 identical GPT-4o calls. The system crashes.
+* **With Request Coalescing (Single-Flight in FastAPI/Go):**
+  - The API Gateway checks if a query with the exact same fingerprint is currently *already in-flight*.
+  - Requests 2 through 500 **lock onto the existing in-flight promise/future**.
+  - Exactly **one** backend LLM call executes. When it completes, the result is broadcasted to all 500 waiting HTTP connections simultaneously.
+  - Compute saved: 99.8%!
+
+---
+
+#### ⏱️ 5. TTFT (Time to First Token) vs. TPOT (Time Per Output Token)
+
+Interviewers will ask: *"How can you claim <2s latency if generating 500 words takes 3 seconds?"*
+
+$$\text{Total Latency} = \text{TTFT} + (\text{Tokens Generated} \times \text{TPOT})$$
+
+* **TTFT (Time to First Token):** How long before the user sees the first word appear on screen. This includes network transit, embedding, vector retrieval, reranking, and the initial LLM prompt processing pass. **Target: <400ms.**
+* **TPOT (Time Per Output Token):** The speed at which each subsequent token is generated by the LLM (typically ~20ms - 35ms per token).
+* **Server-Sent Events (SSE) Streaming:** By streaming tokens to the frontend UI via SSE chunked transfer-encoding, the user perceives the response as instantaneous (<400ms) because reading starts immediately, even while generation completes in 1.8 seconds.
+
+---
+
+#### 🛡️ 6. Circuit Breakers & Graceful Degradation
+
+* **What it is:** Borrowed from electrical engineering (and Netflix Hystrix). If a component fails or slows down, trip the breaker to protect the system.
+* **The 3 States:**
+  - **Closed (Normal):** All traffic goes to full pipeline (Hybrid Search + Cross-Encoder + GPT-4o).
+  - **Open (Degraded Mode):** If p95 latency exceeds 1.8s or error rate exceeds 5% over a 1-minute window:
+    - Skip the Cross-Encoder reranker.
+    - Route queries to a lightweight model (**GPT-4o-mini**) or return pre-computed FAQ summaries.
+  - **Half-Open (Testing Recovery):** Sends 5% of traffic to the main pipeline. If it succeeds with sub-2s latency, close the breaker and restore normal operations.
+
+---
+
+### 2.3 Key Architectural Trade-Offs Matrix
+
+| Optimization | Naive Approach | Production Scaled Choice | Why? (The Interview Rationale) |
+| :--- | :--- | :--- | :--- |
+| **Caching Scope** | No caching (every query hits LLM) | L1 Exact Hash + L2 Semantic Vector Cache (Redis) | Eliminates 40-60% of repetitive enterprise queries; drops their latency from 2000ms to 30ms. |
+| **OpenAI Deployment** | Pay-As-You-Go (PAYG) | Provisioned Throughput Units (PTU) | PAYG suffers from noisy-neighbor multi-tenant latency spikes and 429 rate limits. PTUs guarantee deterministic throughput. |
+| **Response Delivery** | Buffered JSON response | Server-Sent Events (SSE) Streaming | Streaming drops perceived Time To First Token (TTFT) to <400ms, creating a silky smooth user experience. |
+| **Reranker Engine** | Python PyTorch Cross-Encoder | ONNX Runtime on TensorRT / Triton Inference | ONNX Runtime with FP16 quantization accelerates cross-encoder inference from 180ms down to 25ms on GPU. |
+| **Spike Handling** | Queuing requests sequentially | Request Coalescing (Single-Flight) | Merges simultaneous identical queries into a single execution, preventing server meltdowns during company-wide events. |
+
+---
+
+### 2.4 The 3-Minute Interview "Golden Answer" Script
+
+When the interviewer asks: **"How do you achieve sub-2 second latency with 1,000+ concurrent users in an enterprise RAG system?"**
+
+> **1. Framing & The Latency Budget (30s):**
+> *"Achieving sub-2s latency for 1,000+ concurrent users requires strict latency budgeting across three decoupled layers: a multi-tier caching layer, an async retrieval pipeline, and a dedicated GPU serving tier. We split the 2-second budget into: 50ms for caching/routing, 150ms for hybrid retrieval and reranking, and 1.5s for LLM generation with a Time-To-First-Token under 400ms."*
+>
+> **2. Multi-Level Caching & Spike Protection (60s):**
+> *"At the ingress, Azure API Management enforces rate limits and **Request Coalescing (single-flight execution)** so identical burst queries only trigger a single backend call.
+> We implement a 2-tier cache:
+> - **L1 Exact Match Cache:** A Redis key-value hash of the query and user security groups (~5ms).
+> - **L2 Semantic Vector Cache:** Using Azure Cache for Redis Enterprise with vector search. If the incoming query has a cosine similarity $\ge 0.95$ with a cached query, we return the cached response in ~35ms, bypassing search and the LLM entirely. This absorbs 40-50% of enterprise query volume."*
+>
+> **3. High-Throughput Retrieval & Inference (60s):**
+> *"For cache misses, our FastAPI orchestrator executes parallel async calls to Azure AI Search with optimized HNSW index parameters (`efSearch=64`). Candidate chunks are reranked using an ONNX-optimized Cross-Encoder running on GPU node pools.
+> For LLM generation, instead of Pay-As-You-Go which suffers from multi-tenant queuing and 429 rate limits, we deploy **Azure OpenAI with Provisioned Throughput Units (PTU)**. PTU guarantees dedicated GPU capacity with deterministic token generation speeds. We stream tokens back to the user via Server-Sent Events (SSE), achieving a perceived Time To First Token of <400ms."*
+>
+> **4. Resilience & Fallback (30s):**
+> *"Finally, we implement a **Circuit Breaker** pattern. If the LLM p95 latency spikes over 1.8 seconds, the system automatically degrades gracefully: bypassing the cross-encoder and falling back to GPT-4o-mini or returning extracted passages with high-confidence extractive summaries."*
+
+---
+
