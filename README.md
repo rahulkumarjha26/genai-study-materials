@@ -792,7 +792,7 @@ Fine-Tuning         ──► For Specialized Vocabulary, Complex Formatting, & 
 #### 💰 4. The Math of Slashing a $50K/Month Bill Down to $8K/Month
 
 * **Current Architecture (100% GPT-4 + RAG):**
-  - 1,000,000 queries/month $\times$ $0.05 average cost per query (input context + output) = **$50,000/month**.
+  - 1,000,000 queries/month × $0.05 average cost per query (input context + output) = **$50,000/month**.
 * **The Hybrid Architecture (Our Solution):**
   - **30% of Queries (FAQ / Common Inquiries):** Absorbed by L1/L2 Redis Cache = **$0.00** (0 tokens).
   - **50% of Queries (Category Inquiries):** Routed to Category RAG + Fine-Tuned Llama-3-8B running on Azure ML Serverless Endpoint at $0.0004/query = **$200/month**.
@@ -893,7 +893,15 @@ Interviewers will ask: *"Why does a 128K context window crash a GPU server?"*
   - During generation, to predict token #1,001, the model needs attention scores against all previous 1,000 tokens.
   - To avoid recomputing Key ($K$) and Value ($V$) matrices for every single new token, the GPU saves them in High Bandwidth Memory (VRAM). This is the **KV Cache**.
 * **The Memory Formula:**
-  $$\text{KV Cache Size (Bytes)} = 2 \times 2 \times n_{\text{layers}} \times n_{\text{heads}} \times d_{\text{head}} \times \text{seq\_len} \times \text{batch\_size}$$
+  $$\text{KV Cache Size (Bytes)} = 2 \times 2 \times n_{\text{layers}} \times n_{\text{heads}} \times d_{\text{head}} \times \text{Sequence Length} \times \text{Batch Size}$$
+
+  *Variable Breakdown:*
+  - **First $2$:** Storing both Keys ($K$) and Values ($V$).
+  - **Second $2$:** 16-bit floating point precision (**2 bytes** per FP16/BF16 parameter).
+  - **$n_{\text{layers}}$:** Number of Transformer attention layers (e.g., 80 layers in Llama-3-70B).
+  - **$n_{\text{heads}} \times d_{\text{head}}$:** Model hidden dimension ($d_{\text{model}}$, e.g., 8,192).
+  - **$\text{Sequence Length}$:** Total context window tokens (e.g., 128,000 tokens).
+  - **$\text{Batch Size}$:** Number of concurrent user requests running simultaneously.
 * **A Real Example:**
   - A 70B model with a 128K token context per user:
   - **A single user's KV cache requires over 10 GB of GPU VRAM!**
@@ -1046,8 +1054,14 @@ Thought ─┼── Branch B (Deep dive top 3 papers) ──► Evaluate Score:
 
 * **The Catastrophic Failure Mode:** An agent searches for a paper: `search("quantum computing drug discovery")`. It finds 0 results. It retries: `search("quantum computing drug discovery")`. It gets stuck in an infinite cycle, spending $50 in 3 minutes!
 * **The Production Fix (State Hashing):**
-  1. Before every tool call, compute a hash:
-     $$\text{State Hash} = \text{SHA256}(\text{agent\_name} + \text{tool\_name} + \text{canonical\_json}(\text{arguments}))$$
+  1. Before every tool call, compute a deterministic hash in Python:
+     ```python
+     state_hash = hashlib.sha256(
+         f"{agent_name}:{tool_name}:{json.dumps(arguments, sort_keys=True)}".encode()
+     ).hexdigest()
+     ```
+     Or conceptually:
+     $$\text{State Hash} = \text{SHA256}(\text{Agent Name} + \text{Tool Name} + \text{Arguments JSON})$$
   2. Maintain a `visited_states = set()` in memory.
   3. If `state_hash in visited_states`:
      - **Immediately abort the tool call.**
