@@ -118,43 +118,43 @@ mindmap
 ```mermaid
 flowchart TD
     subgraph INGESTION["1. Document Ingestion & Indexing Pipeline (Asynchronous)"]
-        SP[SharePoint / Confluence / Blob Storage] --> Event[Azure Event Grid / Blob Trigger]
-        Event --> Func[Azure Functions / Ingestion Worker]
-        Func --> Parse[Layout-Aware Parser: Azure AI Document Intelligence]
+        SP["SharePoint / Confluence / Blob Storage"] --> Event["Azure Event Grid / Blob Trigger"]
+        Event --> Func["Azure Functions / Ingestion Worker"]
+        Func --> Parse["Layout-Aware Parser: Azure AI Document Intelligence"]
         
-        Parse --> Chunk[Parent-Child Chunking Strategy]
-        Chunk --> Meta[Metadata & ACL Enrichment\nDoc ID, Timestamp, User/Group Security IDs]
+        Parse --> Chunk["Parent-Child Chunking Strategy"]
+        Chunk --> Meta["Metadata & ACL Enrichment<br/>Doc ID, Timestamp, User/Group Security IDs"]
         
-        Meta --> Embed[Embedding Model\nAzure OpenAI text-embedding-3-large]
-        Meta --> Sparse[Sparse Tokenizer\nBM25 / SPLADE Analyzer]
+        Meta --> Embed["Embedding Model<br/>Azure OpenAI text-embedding-3-large"]
+        Meta --> Sparse["Sparse Tokenizer<br/>BM25 / SPLADE Analyzer"]
         
-        Embed --> PushIndex[(Azure AI Search\nVector + Keyword Index)]
+        Embed --> PushIndex[("Azure AI Search<br/>Vector + Keyword Index")]
         Sparse --> PushIndex
     end
 
     subgraph QUERY["2. User Query & Retrieval Pipeline (Real-Time)"]
-        User([Enterprise User]) --> Gateway[Azure API Management\nAuth via Microsoft Entra ID]
-        Gateway --> FastApp[FastAPI Orchestrator on AKS]
+        User(["Enterprise User"]) --> Gateway["Azure API Management<br/>Auth via Microsoft Entra ID"]
+        Gateway --> FastApp["FastAPI Orchestrator on AKS"]
         
-        FastApp --> SecurityFilter[Extract User Entra ID Security Token / Groups]
-        FastApp --> QueryEmbed[Embed Query via text-embedding-3-large]
+        FastApp --> SecurityFilter["Extract User Entra ID Security Token / Groups"]
+        FastApp --> QueryEmbed["Embed Query via text-embedding-3-large"]
         
-        QueryEmbed --> AISearch[Azure AI Search\nHybrid Query + Security Filter]
+        QueryEmbed --> AISearch["Azure AI Search<br/>Hybrid Query + Security Filter"]
         SecurityFilter --> AISearch
         
-        AISearch -- 1. Dense Vector KNN --> CandidatePool[Top 50 Chunks]
-        AISearch -- 2. Sparse BM25 Match --> CandidatePool
-        AISearch -- 3. Security ACL Pruning --> CandidatePool
+        AISearch -- "1. Dense Vector KNN" --> CandidatePool["Top 50 Chunks"]
+        AISearch -- "2. Sparse BM25 Match" --> CandidatePool
+        AISearch -- "3. Security ACL Pruning" --> CandidatePool
         
-        CandidatePool --> RRF[Reciprocal Rank Fusion - RRF]
-        RRF --> Rerank[Cross-Encoder / Semantic Reranker\nTop 5 Chunks]
+        CandidatePool --> RRF["Reciprocal Rank Fusion - RRF"]
+        RRF --> Rerank["Cross-Encoder / Semantic Reranker<br/>Top 5 Chunks"]
     end
 
     subgraph GENERATION["3. Context Assembly & Verification"]
-        Rerank --> ContextAssembly[Inject Chunks + Strict System Prompt + Metadata]
-        ContextAssembly --> LLM[Azure OpenAI GPT-4o / GPT-4o-mini]
-        LLM --> Guardrail[Azure AI Content Safety & Citation Validator]
-        Guardrail --> UserResponse([Final Answer with Clickable Source Citations])
+        Rerank --> ContextAssembly["Inject Chunks + Strict System Prompt + Metadata"]
+        ContextAssembly --> LLM["Azure OpenAI GPT-4o / GPT-4o-mini"]
+        LLM --> Guardrail["Azure AI Content Safety & Citation Validator"]
+        Guardrail --> UserResponse(["Final Answer with Clickable Source Citations"])
     end
 ```
 
@@ -340,35 +340,35 @@ When the interviewer asks: **"How do you design an enterprise RAG system for 500
 
 ```mermaid
 flowchart TD
-    User([1,000+ Concurrent Users]) --> APIM[Azure API Management\nRate Limiting + Request Coalescing]
+    User(["1,000+ Concurrent Users"]) --> APIM["Azure API Management<br/>Rate Limiting + Request Coalescing"]
     
     subgraph CACHE_LAYER["Multi-Layer Caching Hierarchy"]
-        APIM --> L1{L1: Exact Match Cache\nHash: SHA256(Query + UserACL)}
-        L1 -- "Hit (5ms)" --> ReturnCached[Return Cached Answer]
+        APIM --> L1{"L1: Exact Match Cache<br/>Hash: SHA256(Query + UserACL)"}
+        L1 -- "Hit (5ms)" --> ReturnCached["Return Cached Answer"]
         
-        L1 -- "Miss" --> EmbedQ[Embed Query\ntext-embedding-3-large]
-        EmbedQ --> L2{L2: Semantic Vector Cache\nAzure Cache for Redis Enterprise\nCosine Sim > 0.95}
+        L1 -- "Miss" --> EmbedQ["Embed Query<br/>text-embedding-3-large"]
+        EmbedQ --> L2{"L2: Semantic Vector Cache<br/>Azure Cache for Redis Enterprise<br/>Cosine Sim > 0.95"}
         L2 -- "Hit (35ms)" --> ReturnCached
     end
 
     subgraph RETRIEVAL_LAYER["Parallel Retrieval & Pruning (150ms)"]
-        L2 -- "Miss" --> Coalesce[Request Coalescing / Single-Flight Engine]
-        Coalesce --> SearchCluster[(Azure AI Search\nHNSW Index: efSearch=64)]
+        L2 -- "Miss" --> Coalesce["Request Coalescing / Single-Flight Engine"]
+        Coalesce --> SearchCluster[("Azure AI Search<br/>HNSW Index: efSearch=64")]
         
-        SearchCluster --> ParallelProc["Async Parallel Pruning & Reranking\nCross-Encoder ONNX Runtime on GPU"]
+        SearchCluster --> ParallelProc["Async Parallel Pruning & Reranking<br/>Cross-Encoder ONNX Runtime on GPU"]
     end
 
     subgraph INFERENCE_LAYER["Low-Latency Generation (1.2s - 1.5s)"]
-        ParallelProc --> PTU[Azure OpenAI Service\nPTU: Provisioned Throughput Units\nDedicated GPU Capacity]
+        ParallelProc --> PTU["Azure OpenAI Service<br/>PTU: Provisioned Throughput Units<br/>Dedicated GPU Capacity"]
         
-        PTU -- SSE Streaming Tokens --> StreamEngine[FastAPI Streaming Engine\nChunked Transfer-Encoding]
-        StreamEngine --> StreamUser([User Sees First Token in <400ms])
+        PTU -- "SSE Streaming Tokens" --> StreamEngine["FastAPI Streaming Engine<br/>Chunked Transfer-Encoding"]
+        StreamEngine --> StreamUser(["User Sees First Token in <400ms"])
     end
 
     subgraph FALLBACK["Resilience & Graceful Degradation"]
-        PTU -. "Latency > 1.8s or 429" .-> CircuitBreaker{Circuit Breaker\nTrips Open}
-        CircuitBreaker --> FastModel[Fallback: GPT-4o-mini or Distilled Model]
-        CircuitBreaker --> StaleCache[Fallback: Stale Cache / Top Extracted Passage]
+        PTU -. "Latency > 1.8s or 429" .-> CircuitBreaker{"Circuit Breaker<br/>Trips Open"}
+        CircuitBreaker --> FastModel["Fallback: GPT-4o-mini or Distilled Model"]
+        CircuitBreaker --> StaleCache["Fallback: Stale Cache / Top Extracted Passage"]
     end
 ```
 
