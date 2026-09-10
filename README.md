@@ -1,6 +1,9 @@
 # Master GenAI & ML Lead Interview Study Guide
 
 > **Structured for Visual Learners**: Every topic begins with an end-to-end **Flowchart / Architecture Diagram**, followed by a crisp breakdown of **What Each Piece Does**, key **Trade-offs**, and an **Interview "Golden Answer" Blueprint** grounded in **Azure Cloud**.
+>
+> 🚀 **Looking for fast, intuitive revision?** Check out **[README_V2.md (Easy-Learn Edition)](README_V2.md)** featuring 10-second concept hooks, Jargon Busters, trade-offs, and 3-minute golden interview scripts.
+> 📚 **Looking for the 117-question bank and solutions?** Check out [interview_questions.md](interview_questions.md) and [interview_explanations.md](interview_explanations.md).
 
 ---
 
