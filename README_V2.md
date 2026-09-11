@@ -10,6 +10,7 @@
 > 6. **The 3-Minute Golden Interview Answer** (Production-ready recruiter response)
 >
 > 🧭 **Companion Guides:**
+> - [EXPERIENCE_AND_BACKGROUND.md](EXPERIENCE_AND_BACKGROUND.md) — 🎙️ Rahul's Interview Speaking Guide (Career Story, WPP/Cognizant Deep-Dive & Projects)
 > - [README.md](README.md) — Comprehensive Master Architecture Reference (Deep-dive specs, benchmarks & implementation details)
 > - [interview_questions.md](interview_questions.md) — Full 117 Recruiter Question Bank
 > - [interview_explanations.md](interview_explanations.md) — Revision-friendly Q&A breakdown with diagrams for all 117 questions
