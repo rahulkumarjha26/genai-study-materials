@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad9" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+    <marker id="arrow9" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#8b949e"/>
+    </marker>
+  </defs>
+  <rect width="800" height="450" rx="12" fill="url(#bgGrad9)" stroke="#30363d" stroke-width="1.5"/>
+  <text x="400" y="38" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="18" font-weight="700" text-anchor="middle">Regression Loss Functions Comparison</text>
+  <text x="400" y="60" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" text-anchor="middle">Mean Squared Error (MSE) vs. Mean Absolute Error (MAE) vs. Huber Loss</text>
+
+  <!-- Axes -->
+  <line x1="400" y1="380" x2="400" y2="85" stroke="#8b949e" stroke-width="2" marker-end="url(#arrow9)"/>
+  <text x="400" y="75" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" text-anchor="middle">Loss Value</text>
+
+  <line x1="120" y1="360" x2="700" y2="360" stroke="#8b949e" stroke-width="2" marker-end="url(#arrow9)"/>
+  <text x="400" y="405" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" text-anchor="middle">Prediction Error: e = y - y_hat</text>
+
+  <!-- 1. MSE (Quadratic Parabola - Red) -->
+  <!-- Parabola through (400, 360), (300, 260), (200, 110), (500, 260), (600, 110) -->
+  <path d="M 190 100 Q 400 480, 610 100" fill="none" stroke="#f85149" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- 2. MAE (V-Shaped Lines - Blue) -->
+  <!-- V shape from (150, 110) to (400, 360) to (650, 110) -->
+  <path d="M 150 110 L 400 360 L 650 110" fill="none" stroke="#58a6ff" stroke-width="3" stroke-linecap="round"/>
+
+  <!-- 3. Huber Loss (Smooth Parabola at center, Linear on sides - Green) -->
+  <path d="M 170 120 L 330 290 Q 400 380, 470 290 L 630 120" fill="none" stroke="#3fb950" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- Labels -->
+  <rect x="620" y="90" width="150" height="38" rx="6" fill="#21262d" stroke="#f85149" stroke-width="1"/>
+  <text x="695" y="108" fill="#f85149" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" text-anchor="middle">MSE: Error²</text>
+  <text x="695" y="122" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" text-anchor="middle">Explodes on Outliers</text>
+
+  <rect x="50" y="90" width="150" height="38" rx="6" fill="#21262d" stroke="#58a6ff" stroke-width="1"/>
+  <text x="125" y="108" fill="#58a6ff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" text-anchor="middle">MAE: |Error|</text>
+  <text x="125" y="122" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" text-anchor="middle">Constant Gradient</text>
+
+  <rect x="310" y="170" width="180" height="42" rx="6" fill="#238636" stroke="#2ea043" stroke-width="1"/>
+  <text x="400" y="188" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" text-anchor="middle">HUBER LOSS</text>
+  <text x="400" y="203" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" text-anchor="middle">Quadratic at 0 + Linear on Outliers</text>
+</svg>

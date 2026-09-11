@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad11" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" rx="12" fill="url(#bgGrad11)" stroke="#30363d" stroke-width="1.5"/>
+  <text x="400" y="38" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="18" font-weight="700" text-anchor="middle">DBSCAN: Density-Based Clustering Architecture</text>
+  <text x="400" y="60" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" text-anchor="middle">Grouping by spatial neighborhood density: Epsilon (ε) radius &amp; MinPts</text>
+
+  <!-- Left: Concentric Ring Shapes (Impossible for K-Means) -->
+  <text x="220" y="105" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="700" text-anchor="middle">Arbitrary Geometric Shapes (Rings)</text>
+
+  <!-- Outer Ring Cluster (Cluster 1 - Blue) -->
+  <circle cx="220" cy="240" r="105" fill="none" stroke="#58a6ff" stroke-width="14" stroke-opacity="0.25"/>
+  <circle cx="220" cy="240" r="105" fill="none" stroke="#58a6ff" stroke-width="2" stroke-dasharray="8,6"/>
+  <!-- Points on outer ring -->
+  <circle cx="115" cy="240" r="5" fill="#58a6ff"/>
+  <circle cx="325" cy="240" r="5" fill="#58a6ff"/>
+  <circle cx="220" cy="135" r="5" fill="#58a6ff"/>
+  <circle cx="220" cy="345" r="5" fill="#58a6ff"/>
+  <circle cx="145" cy="165" r="5" fill="#58a6ff"/>
+  <circle cx="295" cy="165" r="5" fill="#58a6ff"/>
+  <circle cx="145" cy="315" r="5" fill="#58a6ff"/>
+  <circle cx="295" cy="315" r="5" fill="#58a6ff"/>
+
+  <!-- Inner Core Cluster (Cluster 2 - Green) -->
+  <circle cx="220" cy="240" r="40" fill="#3fb950" fill-opacity="0.2" stroke="#3fb950" stroke-width="2"/>
+  <circle cx="220" cy="240" r="6" fill="#3fb950"/>
+  <circle cx="205" cy="225" r="5" fill="#3fb950"/>
+  <circle cx="235" cy="230" r="5" fill="#3fb950"/>
+  <circle cx="215" cy="255" r="5" fill="#3fb950"/>
+
+  <!-- Outlier / Noise Points (Red 'X') -->
+  <text x="90" y="120" fill="#f85149" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="16" font-weight="900">✕</text>
+  <text x="350" y="320" fill="#f85149" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="16" font-weight="900">✕</text>
+  <text x="360" y="120" fill="#f85149" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="16" font-weight="900">✕</text>
+
+  <!-- Divider -->
+  <line x1="430" y1="80" x2="430" y2="400" stroke="#30363d" stroke-width="1.5"/>
+
+  <!-- Right: The 3 Point Types in DBSCAN -->
+  <text x="610" y="105" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="700" text-anchor="middle">The 3 Point Classifications</text>
+
+  <!-- Epsilon Circle around Core Point at (580, 190) -->
+  <circle cx="580" cy="190" r="55" fill="#3fb950" fill-opacity="0.15" stroke="#3fb950" stroke-width="2" stroke-dasharray="4,3"/>
+  <circle cx="580" cy="190" r="7.5" fill="#3fb950" stroke="#ffffff" stroke-width="2"/>
+  <text x="580" y="170" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" text-anchor="middle">Core Point</text>
+
+  <!-- Neighbors inside epsilon -->
+  <circle cx="550" cy="165" r="5" fill="#3fb950"/>
+  <circle cx="610" cy="175" r="5" fill="#3fb950"/>
+  <circle cx="565" cy="220" r="5" fill="#3fb950"/>
+  <circle cx="620" cy="210" r="5" fill="#d29922"/>
+
+  <!-- Border Point at (620, 210) -->
+  <text x="690" y="215" fill="#d29922" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700">Border Point</text>
+  <line x1="628" y1="210" x2="680" y2="210" stroke="#d29922" stroke-width="1"/>
+
+  <!-- Noise Point at (580, 310) -->
+  <circle cx="580" cy="310" r="50" fill="#f85149" fill-opacity="0.05" stroke="#f85149" stroke-width="1" stroke-dasharray="4,4"/>
+  <circle cx="580" cy="310" r="6" fill="#f85149"/>
+  <text x="580" y="335" fill="#f85149" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" text-anchor="middle">Noise / Outlier (-1)</text>
+  <text x="580" y="350" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" text-anchor="middle">&lt; MinPts in radius ε</text>
+
+  <rect x="470" y="380" width="280" height="42" rx="6" fill="#21262d" stroke="#30363d" stroke-width="1"/>
+  <text x="610" y="398" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" text-anchor="middle">MinPts: Minimum points required in ε</text>
+  <text x="610" y="412" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" text-anchor="middle">Core points expand clusters recursively</text>
+</svg>

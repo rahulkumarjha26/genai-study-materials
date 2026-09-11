@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad6" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" rx="12" fill="url(#bgGrad6)" stroke="#30363d" stroke-width="1.5"/>
+  <text x="400" y="38" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="18" font-weight="700" text-anchor="middle">K-Nearest Neighbors (KNN): The Choice of K</text>
+  <text x="400" y="60" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" text-anchor="middle">Instance-based classification: Majority vote across distance neighborhood</text>
+
+  <!-- Outer Circle K=5 -->
+  <circle cx="380" cy="240" r="140" fill="#a371f7" fill-opacity="0.08" stroke="#a371f7" stroke-width="2" stroke-dasharray="6,4"/>
+  <text x="510" y="140" fill="#a371f7" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700">K = 5 Boundary</text>
+
+  <!-- Inner Circle K=3 -->
+  <circle cx="380" cy="240" r="85" fill="#58a6ff" fill-opacity="0.12" stroke="#58a6ff" stroke-width="2.5"/>
+  <text x="440" y="190" fill="#58a6ff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700">K = 3 Boundary</text>
+
+  <!-- Query Point (Center) -->
+  <circle cx="380" cy="240" r="9" fill="#d29922" stroke="#ffffff" stroke-width="2.5"/>
+  <text x="380" y="244" fill="#0d1117" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="900" text-anchor="middle">?</text>
+
+  <!-- Points Inside K=3 (2 Squares, 1 Triangle) -->
+  <!-- Square 1 -->
+  <rect x="330" y="210" width="14" height="14" rx="2" fill="#58a6ff"/>
+  <!-- Square 2 -->
+  <rect x="390" y="280" width="14" height="14" rx="2" fill="#58a6ff"/>
+  <!-- Triangle 1 -->
+  <polygon points="415,190 425,208 405,208" fill="#f85149"/>
+
+  <!-- Additional Points for K=5 (2 more Triangles) -->
+  <polygon points="310,160 320,178 300,178" fill="#f85149"/>
+  <polygon points="470,260 480,278 460,278" fill="#f85149"/>
+
+  <!-- Far away background points -->
+  <rect x="180" y="130" width="12" height="12" rx="2" fill="#58a6ff"/>
+  <rect x="220" y="320" width="12" height="12" rx="2" fill="#58a6ff"/>
+  <polygon points="560,330 570,348 550,348" fill="#f85149"/>
+  <polygon points="620,180 630,198 610,198" fill="#f85149"/>
+
+  <!-- Comparison Summary Cards -->
+  <!-- If K=3 -->
+  <rect x="80" y="360" width="280" height="60" rx="8" fill="#21262d" stroke="#58a6ff" stroke-width="1.5"/>
+  <text x="95" y="382" fill="#58a6ff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="700">When K = 3:</text>
+  <text x="95" y="402" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12">2 Squares vs 1 Triangle  -->  <tspan fill="#58a6ff" font-weight="700">SQUARE</tspan></text>
+
+  <!-- If K=5 -->
+  <rect x="440" y="360" width="280" height="60" rx="8" fill="#21262d" stroke="#f85149" stroke-width="1.5"/>
+  <text x="455" y="382" fill="#f85149" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="700">When K = 5:</text>
+  <text x="455" y="402" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12">2 Squares vs 3 Triangles  -->  <tspan fill="#f85149" font-weight="700">TRIANGLE</tspan></text>
+</svg>

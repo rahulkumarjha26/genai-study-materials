@@ -1,11 +1,11 @@
 # Machine Learning Core Concepts (Interview-Ready Visual Guide)
 
-> **Professional • Visual Graphs & Architecture • Direct Definitions • Spoken-Math Ready**
+> **Professional • Real Vector SVG Graphs • Direct Recital Definitions • Spoken-Math Ready**
 > 
 > A complete, interview-tested study guide covering all fundamental classical and applied Machine Learning concepts.
 > Every concept is structured with:
 > 1. 🎙️ **The Definition to Recite** (1–2 crisp, authoritative sentences ready to say out loud)
-> 2. 📊 **Visual Graph / Architecture Representation** (Clear visual diagrams that explain the concept at a glance)
+> 2. 📊 **Actual Visual Graphs & Architecture Diagrams** (Clean, high-resolution vector graphs designed for instant clarity)
 > 3. 📐 **Clean Mathematical Formulation** (Readable code blocks with labeled variables + centered display equations)
 > 4. ⚙️ **Operational Mechanics & Variants** (Step-by-step functionality under the hood)
 > 5. ⚠️ **Interview Trap Questions & Assumptions** (What senior interviewers specifically probe)
@@ -60,27 +60,9 @@ flowchart TD
 
 ### 📊 Visual Graph Representation
 
-```text
-Prediction
-  Error |
-        |   \                                 /  Total Test Error
-        |    \                               /
-        |     \                             /
-        |      \         Optimal           /
-        |       \        Capacity         /
-        |        \          v            /
-        |         \_________•___________/    <-- Sweet Spot (Minimum Test Error)
-        |          \                   /
-        |   Bias²   \                 /   Variance (Overfitting)
-        |   (High)   \               /    (High)
-        |             \             /
-        |              \___________/
-        |               Training Error (Always decreases)
-        +----------------------------------------------------> Model Complexity
-           Zone 1: Underfitting        Zone 2: Optimal        Zone 3: Overfitting
-           - High Bias                 - Best Generalization   - High Variance
-           - Model too simplistic      - Minimal Test Error    - Memorized training noise
-```
+<p align="center">
+  <img src="assets/bias_variance_tradeoff.svg" alt="The Bias-Variance Tradeoff" width="100%"/>
+</p>
 
 ---
 
@@ -127,23 +109,9 @@ $$
 
 ### 📊 Visual Graph Representation
 
-```text
- Target (y) |
-            |                              • (Data point: actual y)
-            |                             /
-            |                       •    /
-            |                           /|  <-- Residual error: e = y - y_hat
-            |                          / |
-            |                    •    /  • (Predicted: y_hat)
-            |                        /
-            |                  •    /
-            |                      /
-            |            •        /   Fitted Regression Line:
-            |                    /    y_hat = (weight * x) + bias
-            |        •          /
-            |                  /
-            +---------------------------------------------> Feature (x)
-```
+<p align="center">
+  <img src="assets/linear_regression.svg" alt="Linear Regression Best Fit" width="100%"/>
+</p>
 
 ---
 
@@ -220,23 +188,9 @@ $$
 
 ### 📊 Visual Graph Representation
 
-```text
- Probability
-   P(y = 1) |
-       1.0  |                                    ----------------- (Class 1)
-            |                                  /
-            |                                 /
-       0.75 |                               /
-            |                              /
-       0.50 | - - - - - - - - - - - - - - •  <-- Decision Boundary (z = 0, P = 0.5)
-            |                            /
-       0.25 |                           /
-            |                          /
-        0.0 | ------------------------        (Class 0)
-            +-----------------------------•----------------------->
-                    z < 0 (Predict 0)    z = 0      z > 0 (Predict 1)
-                                      Score: z = w^T * x + b
-```
+<p align="center">
+  <img src="assets/logistic_regression_sigmoid.svg" alt="Logistic Regression Sigmoid Curve" width="100%"/>
+</p>
 
 ---
 
@@ -282,15 +236,13 @@ $$
 
 ### 📊 Visual Architecture Representation
 
-```text
-   Prior Knowledge                        Likelihood of Features Given Class
-   P(Class = Spam)    x    P(Word1 = "Free" | Spam) * P(Word2 = "Offer" | Spam)
- --------------------------------------------------------------------------------
-                         Evidence: P(Word1 = "Free", Word2 = "Offer")
-                                                ||
-                                                vv
-                               Posterior Probability: P(Spam | Words)
-                               (Assign class with maximum posterior probability)
+```mermaid
+flowchart LR
+    Prior["<b>Prior Probability</b><br/>P(Class = Spam)"] --> Multiply["<b>Combine Evidence</b><br/>Multiply Likelihoods"]
+    Likelihood["<b>Feature Likelihoods</b><br/>P(Word₁ | Spam) × P(Word₂ | Spam)"] --> Multiply
+    Evidence["<b>Marginal Evidence</b><br/>P(Words)"] --> Posterior
+    Multiply --> Posterior["<b>Posterior Probability</b><br/>P(Spam | Words)"]
+    Posterior --> Output["<b>Argmax Classification</b><br/>Assign Most Likely Class"]
 ```
 
 ---
@@ -313,7 +265,7 @@ $$
 ### ⚙️ The 3 Core Variants to Know in Interviews
 
 1. **Gaussian Naive Bayes:**
-   - Used for continuous numerical features. Assumes features follow a normal distribution $\mathcal{N}(\mu_c, \sigma_c^2)$ within each class.
+   - Used for continuous numerical features. Assumes features follow a normal distribution within each class.
 2. **Multinomial Naive Bayes:**
    - Used for discrete count data (e.g., word frequency counts in text documents and NLP spam filtering).
 3. **Bernoulli Naive Bayes:**
@@ -322,8 +274,8 @@ $$
 ---
 
 ### ⚠️ Critical Interview Concept: Laplace Smoothing (Zero Frequency Problem)
-* **The Problem:** If a feature/word never appeared with a specific class in the training dataset, its probability $P(x_j \mid \text{Class}) = 0$. Since all probabilities are multiplied together, a single zero cancels out the entire product, resulting in a zero posterior probability!
-* **The Solution (Laplace Smoothing):** Add a pseudo-count $\alpha = 1$ to the numerator and total vocabulary size $V$ to the denominator:
+* **The Problem:** If a feature/word never appeared with a specific class in the training dataset, its probability is 0. Since all probabilities are multiplied together, a single zero cancels out the entire product, resulting in a zero posterior probability!
+* **The Solution (Laplace Smoothing):** Add a pseudo-count of 1 to the numerator and total vocabulary size to the denominator:
   ```text
   Smoothed Probability = ( Count_of_Word_in_Class + 1 ) / ( Total_Words_in_Class + Vocabulary_Size )
   ```
@@ -449,11 +401,14 @@ flowchart TD
 
 ### 🚀 Boosting Family: GBDT vs. XGBoost vs. LightGBM
 
-```text
-Sequential Boosting Logic:
-Step 0: Baseline Prediction (Mean of y)  --> Residual Errors
-Step 1: Train Shallow Tree 1 on Residuals --> Multiply by Learning Rate (eta) --> Update Residuals
-Step 2: Train Shallow Tree 2 on New Residuals --> Repeat M times until loss minimizes
+```mermaid
+flowchart LR
+    Base["Baseline Prediction<br/>y₀ = Mean(y)"] --> R1["Calculate Residuals<br/>r₁ = y - y₀"]
+    R1 --> T1["Train Tree 1 on r₁"]
+    T1 --> Up1["Update Prediction<br/>y₁ = y₀ + η · Tree₁(x)"]
+    Up1 --> R2["Calculate New Residuals<br/>r₂ = y - y₁"]
+    R2 --> T2["Train Tree 2 on r₂"]
+    T2 --> FinalBoost["Repeat M Trees<br/>Final = Σ η · Tree_m(x)"]
 ```
 
 | Model | Core Optimization Mechanics | Key Production Advantage |
@@ -473,22 +428,9 @@ Step 2: Train Shallow Tree 2 on New Residuals --> Repeat M times until loss mini
 
 ### 📊 Visual Graph Representation
 
-```text
- Feature 2 |
-           |          (+) Class (+1)
-           |             (+)     (+)
-           |           (+)    [+]  <-- Support Vector
-           |  - - - - - - - - -•- - - - - - - - - -  Positive Margin: w^T * x + b = +1
-           |                  /
-           |                 /   <-- Optimal Hyperplane: w^T * x + b = 0
-           |  <--- Margin --/--->   Margin Width = 2 / ||w||
-           |               /
-           |  - - - - - - • - - - - - - - - - - - -  Negative Margin: w^T * x + b = -1
-           |           [-]  <-- Support Vector
-           |        (-)    (-)
-           |     (-)   (-)     (-) Class (-1)
-           +---------------------------------------------> Feature 1
-```
+<p align="center">
+  <img src="assets/svm_margin.svg" alt="Support Vector Machine Maximum Margin" width="100%"/>
+</p>
 
 ---
 
@@ -530,22 +472,9 @@ $$
 
 ### 📊 Visual Graph Representation
 
-```text
- Feature 2 |
-           |          ▲ (Class: Triangle)
-           |        ▲   ▲
-           |           /-----\
-           |          /  ▲    \
-           |         /   ▲     \
-           |        |  ( ? )    |   <-- Query Point to Classify
-           |        |   ■   ■   |
-           |         \         /
-           |          \---■---/     ■ (Class: Square)
-           |
-           |      Inner Circle (K = 3): 2 Squares, 1 Triangle  --> Predicts: SQUARE
-           |      Outer Circle (K = 5): 2 Squares, 3 Triangles --> Predicts: TRIANGLE
-           +----------------------------------------------------> Feature 1
-```
+<p align="center">
+  <img src="assets/knn_neighborhood.svg" alt="K-Nearest Neighbors Neighborhood" width="100%"/>
+</p>
 
 ---
 
@@ -579,18 +508,19 @@ $$
 
 ---
 
-### 📊 K-Means vs. DBSCAN Visual Comparison
+### 📊 Visual Graph Representation: K-Means & The Elbow Method
 
-```text
- K-Means (Assumes Spherical Clusters)     DBSCAN (Density-Based Arbitrary Shapes)
-             •••••                                     •••••••••••
-           ••  C1 ••                                 ••           ••  <-- Outer Ring
-             •••••                                  •   •••••••     •
-                                                   •   •  Core •     •
-             •••••                                  •   •••••••     •
-           ••  C2 ••                                 ••           ••
-             •••••                                     •••••••••••       x  <-- Noise (Outlier)
-```
+<p align="center">
+  <img src="assets/kmeans_elbow.svg" alt="K-Means Clustering and Elbow Method" width="100%"/>
+</p>
+
+---
+
+### 📊 Visual Graph Representation: DBSCAN Density Clustering
+
+<p align="center">
+  <img src="assets/dbscan_density.svg" alt="DBSCAN Density Clustering" width="100%"/>
+</p>
 
 ---
 
@@ -622,19 +552,11 @@ $$
 
 ---
 
-### 📊 Visual Comparison: PCA vs. t-SNE / UMAP
+### 📊 Visual Graph Representation: PCA Orthogonal Variance
 
-```text
- PCA: Linear Projection (Preserves Variance)     t-SNE / UMAP: Non-Linear Manifold
-                ^ PC1 (Max Variance)                           Cluster B
-               /                                              •••••
-           •• / ••                                           ••   ••
-          •• / ••                                              •••••
-            /                                          Cluster A
-           /  PC2 (Orthogonal)                          •••••
-          +-------->                                   ••   ••
-                                                         •••••
-```
+<p align="center">
+  <img src="assets/pca_variance.svg" alt="PCA Principal Component Analysis" width="100%"/>
+</p>
 
 ---
 
@@ -650,20 +572,11 @@ $$
 
 # Section 11: Loss Functions Master Summary
 
-### 📊 Visual Comparison of Regression Losses
+### 📊 Visual Graph Representation: Regression Losses
 
-```text
- Loss Value |
-            |      \      MSE: Error^2 (Explodes on large outliers)      /
-            |       \                                                  /
-            |        \         MAE: |Error| (Linear penalty)          /
-            |         \       /                               \      /
-            |          \     /                                 \    /
-            |           \___/   <-- Huber: Smooth curve near 0  \__/
-            |                   Linear slopes past delta threshold
-            +--------------------------------------------------------> Prediction Error (y - y_hat)
-                       Negative Error           0           Positive Error
-```
+<p align="center">
+  <img src="assets/regression_loss_comparison.svg" alt="Regression Loss Functions Comparison" width="100%"/>
+</p>
 
 ---
 
@@ -687,25 +600,11 @@ $$
 
 ---
 
-### 📊 Visual Optimization Trajectories
+### 📊 Visual Graph Representation: Optimization Trajectories
 
-```text
- Loss Contour Surface |
-                      |       /-----------------------\
-                      |      /   /-----------------\   \
-                      |     /   /   /-----------\   \   \
-                      |    /   /   /    /----\   \   \   \
-                      |   |   |   |    |  ★   |   |   |   |  <-- Global Minimum (★)
-                      |    \   \   \    \----/   /   /   /
-                      |     \   \   \-----------/   /   /
-                      |      \   \-----------------/   /
-                      |       \-----------------------/
-                      |
-                      |  Trajectory Styles:
-                      |  1. SGD:      \/\/\/\/\/\/\/\   (High-variance zig-zag bouncing)
-                      |  2. Momentum: ~~~~~~~~~~~~~~>   (Accelerating arc, dampens bounce)
-                      |  3. Adam:     -------------->   (Direct, adaptive vector scaling)
-```
+<p align="center">
+  <img src="assets/optimizer_trajectories.svg" alt="Optimizer Trajectories" width="100%"/>
+</p>
 
 ---
 
@@ -748,18 +647,11 @@ Weight_New    = Weight_Old - [ Learning_Rate / (SquareRoot(Second_Moment) + Epsi
 
 ---
 
-### 📊 The Confusion Matrix Visual Breakdown
+### 📊 Visual Graph Representation: Confusion Matrix
 
-```text
-                      PREDICTED POSITIVE          PREDICTED NEGATIVE
- ACTUAL POSITIVE | True Positive (TP)      |  False Negative (FN)     |  <-- Recall = TP / (TP + FN)
-                 | (Caught fraud correctly) |  (Missed fraud! Danger!) |
- ----------------+--------------------------+--------------------------+
- ACTUAL NEGATIVE | False Positive (FP)     |  True Negative (TN)      |  <-- Specificity = TN / (TN + FP)
-                 | (False alarm! Annoying)  |  (Correctly ignored)     |
-                 +--------------------------+--------------------------+
-                   v Precision = TP / (TP + FP)
-```
+<p align="center">
+  <img src="assets/confusion_matrix.svg" alt="Confusion Matrix and Evaluation Metrics" width="100%"/>
+</p>
 
 ---
 
@@ -788,16 +680,20 @@ Weight_New    = Weight_Old - [ Learning_Rate / (SquareRoot(Second_Moment) + Epsi
 
 ---
 
-### 📊 Cross-Validation Strategies Visual Map
+### 📊 Cross-Validation Strategies Architecture
 
-```text
- 1. Standard K-Fold:      [ Fold 1 (Test) ][ Fold 2 ][ Fold 3 ][ Fold 4 ][ Fold 5 ]
-                          [ Fold 1 ][ Fold 2 (Test) ][ Fold 3 ][ Fold 4 ][ Fold 5 ]
-
- 2. Stratified K-Fold:    Preserves exact target class ratio (e.g. 95% Neg / 5% Pos) in every fold.
-
- 3. Time-Series Split:    Train: [Day 1 - 10]  --> Test: [Day 11 - 15]
-                          Train: [Day 1 - 15]  --> Test: [Day 16 - 20]  (Never train on future!)
+```mermaid
+flowchart TD
+    subgraph KFold["1. Standard 5-Fold Cross Validation"]
+        F1["Fold 1: TEST"] --- F2["Fold 2: Train"] --- F3["Fold 3: Train"] --- F4["Fold 4: Train"] --- F5["Fold 5: Train"]
+    end
+    subgraph Stratified["2. Stratified K-Fold (Preserves Class Imbalance)"]
+        S1["Fold 1: 95% Neg / 5% Pos"] --- S2["Fold 2: 95% Neg / 5% Pos"] --- S3["Fold 3: 95% Neg / 5% Pos"]
+    end
+    subgraph TimeSeries["3. Time-Series Walk-Forward Split (No Future Peeking)"]
+        T1["Train: Days 1-10 --> Test: Days 11-15"]
+        T2["Train: Days 1-15 --> Test: Days 16-20"]
+    end
 ```
 
 ---

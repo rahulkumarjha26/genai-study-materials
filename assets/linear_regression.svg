@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+    <marker id="arrow2" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#8b949e"/>
+    </marker>
+  </defs>
+  <rect width="800" height="450" rx="12" fill="url(#bgGrad2)" stroke="#30363d" stroke-width="1.5"/>
+  <text x="400" y="38" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="18" font-weight="700" text-anchor="middle">Linear Regression: Ordinary Least Squares (OLS)</text>
+  <text x="400" y="60" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" text-anchor="middle">Minimizing the sum of squared vertical residuals: e = y - y_hat</text>
+
+  <!-- Axes -->
+  <line x1="120" y1="380" x2="120" y2="90" stroke="#8b949e" stroke-width="2" marker-end="url(#arrow2)"/>
+  <text x="70" y="235" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" transform="rotate(-90 70 235)" text-anchor="middle">Target Variable (y)</text>
+
+  <line x1="120" y1="380" x2="720" y2="380" stroke="#8b949e" stroke-width="2" marker-end="url(#arrow2)"/>
+  <text x="420" y="415" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="600" text-anchor="middle">Predictor Feature (x)</text>
+
+  <!-- Grid lines -->
+  <line x1="120" y1="300" x2="700" y2="300" stroke="#21262d" stroke-width="1"/>
+  <line x1="120" y1="220" x2="700" y2="220" stroke="#21262d" stroke-width="1"/>
+  <line x1="120" y1="140" x2="700" y2="140" stroke="#21262d" stroke-width="1"/>
+
+  <!-- Fitted Regression Line: y = 0.52 * x + 70 -->
+  <!-- Line from (160, 320) to (680, 130) -->
+  <line x1="150" y1="325" x2="680" y2="135" stroke="#58a6ff" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- Vertical Residual Lines (Dashed Red) -->
+  <!-- Point 1: (200, 260) - line at 200 is y=307 -->
+  <line x1="200" y1="260" x2="200" y2="307" stroke="#f85149" stroke-width="2" stroke-dasharray="4,3"/>
+  <circle cx="200" cy="260" r="5.5" fill="#3fb950"/>
+
+  <!-- Point 2: (260, 320) - line at 260 is y=285 -->
+  <line x1="260" y1="320" x2="260" y2="285" stroke="#f85149" stroke-width="2" stroke-dasharray="4,3"/>
+  <circle cx="260" cy="320" r="5.5" fill="#3fb950"/>
+
+  <!-- Point 3: (340, 220) - line at 340 is y=257 -->
+  <line x1="340" y1="220" x2="340" y2="257" stroke="#f85149" stroke-width="2" stroke-dasharray="4,3"/>
+  <circle cx="340" cy="220" r="5.5" fill="#3fb950"/>
+
+  <!-- Point 4: (420, 280) - line at 420 is y=228 -->
+  <line x1="420" y1="280" x2="420" y2="228" stroke="#f85149" stroke-width="2" stroke-dasharray="4,3"/>
+  <circle cx="420" cy="280" r="5.5" fill="#3fb950"/>
+
+  <!-- Point 5 (Highlighted Residual): (500, 150) - line at 500 is y=199 -->
+  <line x1="500" y1="150" x2="500" y2="199" stroke="#f85149" stroke-width="2.5" stroke-dasharray="4,3"/>
+  <circle cx="500" cy="150" r="6" fill="#3fb950" stroke="#ffffff" stroke-width="1.5"/>
+  <circle cx="500" cy="199" r="4.5" fill="#58a6ff"/>
+
+  <!-- Point 6: (580, 210) - line at 580 is y=170 -->
+  <line x1="580" y1="210" x2="580" y2="170" stroke="#f85149" stroke-width="2" stroke-dasharray="4,3"/>
+  <circle cx="580" cy="210" r="5.5" fill="#3fb950"/>
+
+  <!-- Point 7: (640, 130) - line at 640 is y=149 -->
+  <line x1="640" y1="130" x2="640" y2="149" stroke="#f85149" stroke-width="2" stroke-dasharray="4,3"/>
+  <circle cx="640" cy="130" r="5.5" fill="#3fb950"/>
+
+  <!-- Callout Annotations -->
+  <!-- Residual Callout -->
+  <rect x="520" y="155" width="180" height="42" rx="6" fill="#21262d" stroke="#f85149" stroke-width="1"/>
+  <text x="530" y="173" fill="#f85149" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700">Residual Error: e = y - y_hat</text>
+  <text x="530" y="188" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10">Squared &amp; minimized in MSE</text>
+
+  <!-- Line Formula Callout -->
+  <rect x="220" y="110" width="190" height="38" rx="6" fill="#1f6feb" stroke="#388bfd" stroke-width="1"/>
+  <text x="315" y="134" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="700" text-anchor="middle">Best Fit: y_hat = w · x + b</text>
+
+  <!-- Legend -->
+  <g transform="translate(140, 425)">
+    <circle cx="0" cy="-5" r="5" fill="#3fb950"/>
+    <text x="12" y="-1" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">Observed Data (y)</text>
+    <line x1="160" y1="-5" x2="190" y2="-5" stroke="#58a6ff" stroke-width="3"/>
+    <text x="200" y="-1" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">Regression Line (y_hat)</text>
+    <line x1="360" y1="-5" x2="385" y2="-5" stroke="#f85149" stroke-width="2" stroke-dasharray="4,3"/>
+    <text x="395" y="-1" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">Residual Errors (e)</text>
+  </g>
+</svg>
