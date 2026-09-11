@@ -10,6 +10,7 @@
 > 6. **The 3-Minute Golden Interview Answer** (Production-ready recruiter response)
 >
 > 🧭 **Companion Guides:**
+> - [FASTAPI_MASTER_GUIDE.md](FASTAPI_MASTER_GUIDE.md) — ⚡ FastAPI Core Concepts & Top 10 Interview Questions
 > - [EXPERIENCE_AND_BACKGROUND.md](EXPERIENCE_AND_BACKGROUND.md) — 🎙️ Rahul's Interview Speaking Guide (Career Story, WPP/Cognizant Deep-Dive & Projects)
 > - [README.md](README.md) — Comprehensive Master Architecture Reference (Deep-dive specs, benchmarks & implementation details)
 > - [interview_questions.md](interview_questions.md) — Full 117 Recruiter Question Bank

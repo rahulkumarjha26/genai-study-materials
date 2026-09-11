@@ -11,6 +11,7 @@
 ---
 
 ## 🧭 Companion Guides
+- [FASTAPI_MASTER_GUIDE.md](FASTAPI_MASTER_GUIDE.md) — ⚡ FastAPI Core Concepts & Top 10 Interview Questions
 - [README_V2.md](README_V2.md) — 8-Level Easy-Learn GenAI & ML Lead Study Guide
 - [interview_explanations.md](interview_explanations.md) — 117 Interview Questions & Answers
 - [interview_questions.md](interview_questions.md) — Question Bank
