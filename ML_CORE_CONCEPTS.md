@@ -2,12 +2,12 @@
 
 > **Professional • Visual Graphs & Architecture • Direct Definitions • Spoken-Math Ready**
 > 
-> A complete, interview-tested study guide for technical Machine Learning interviews.
+> A complete, interview-tested study guide covering all fundamental classical and applied Machine Learning concepts.
 > Every concept is structured with:
 > 1. 🎙️ **The Definition to Recite** (1–2 crisp, authoritative sentences ready to say out loud)
 > 2. 📊 **Visual Graph / Architecture Representation** (Clear visual diagrams that explain the concept at a glance)
 > 3. 📐 **Clean Mathematical Formulation** (Readable code blocks with labeled variables + centered display equations)
-> 4. ⚙️ **Operational Mechanics** (Step-by-step functionality under the hood)
+> 4. ⚙️ **Operational Mechanics & Variants** (Step-by-step functionality under the hood)
 > 5. ⚠️ **Interview Trap Questions & Assumptions** (What senior interviewers specifically probe)
 > 6. 🎙️ **Direct 30-Second Interview Answers**
 
@@ -30,18 +30,23 @@ flowchart TD
     ML --> Supervised["2. Supervised Learning"]
     ML --> Unsupervised["3. Unsupervised Learning"]
     ML --> Optimization["4. Losses & Optimization"]
+    ML --> Pipeline["5. Evaluation & Pipeline"]
 
     Core --> BV["Bias-Variance Tradeoff<br/>(Underfitting vs Overfitting)"]
 
     Supervised --> Reg["Regression<br/>• Linear Regression (OLS & LINE Assumptions)<br/>• Metrics (MSE, RMSE, MAE, R²)"]
-    Supervised --> Class["Classification<br/>• Logistic Regression (Sigmoid & Log-Odds)<br/>• Decision Trees (Gini & Entropy)<br/>• Support Vector Machines (SVM & Kernels)<br/>• K-Nearest Neighbors (KNN)"]
-    Supervised --> Ensemble["Ensemble Methods<br/>• Bagging (Random Forest)<br/>• Boosting (GBDT, XGBoost)<br/>• Stacking"]
+    Supervised --> Class["Classification<br/>• Logistic Regression (Sigmoid & Log-Odds)<br/>• Naive Bayes (Gaussian, Multinomial, Laplace)<br/>• Decision Trees (Gini & Entropy)<br/>• Support Vector Machines (SVM & Kernels)<br/>• K-Nearest Neighbors (KNN)"]
+    Supervised --> Ensemble["Ensemble Methods<br/>• Bagging (Random Forest & OOB Error)<br/>• Boosting (GBDT, XGBoost, LightGBM)"]
 
-    Unsupervised --> Cluster["Clustering: K-Means & K-Means++"]
-    Unsupervised --> DimRed["Dimensionality Reduction: PCA"]
+    Unsupervised --> Cluster["Clustering<br/>• Partition: K-Means & K-Means++<br/>• Density: DBSCAN (Epsilon, MinPts)<br/>• Hierarchical: Agglomerative Dendrograms"]
+    Unsupervised --> DimRed["Dimensionality Reduction<br/>• Linear: PCA (Eigenvectors & Variance)<br/>• Non-Linear: t-SNE & UMAP (Manifold Embeddings)"]
 
     Optimization --> Loss["Loss Functions<br/>(MSE, MAE, Huber, BCE, CCE, Hinge)"]
     Optimization --> Opt["Optimizers<br/>(GD, Mini-Batch SGD, Momentum, Adam)"]
+
+    Pipeline --> Eval["Model Evaluation<br/>(Confusion Matrix, ROC-AUC, PR-AUC, F1)"]
+    Pipeline --> Leakage["Validation & Leakage Prevention<br/>(K-Fold, Stratified, TimeSeriesSplit)"]
+    Pipeline --> Preprocessing["Feature Engineering<br/>(Encoding & Scaling Strategies)"]
 ```
 
 ---
@@ -268,7 +273,65 @@ $$
 
 ---
 
-# Section 4: Decision Trees
+# Section 4: Naive Bayes Classifier
+
+### 🎙️ The Definition to Recite:
+> *"Naive Bayes is a family of probabilistic supervised classification algorithms based on Bayes' Theorem. It is called 'naive' because it makes the strong assumption that all predictor features are mutually independent given the class label."*
+
+---
+
+### 📊 Visual Architecture Representation
+
+```text
+   Prior Knowledge                        Likelihood of Features Given Class
+   P(Class = Spam)    x    P(Word1 = "Free" | Spam) * P(Word2 = "Offer" | Spam)
+ --------------------------------------------------------------------------------
+                         Evidence: P(Word1 = "Free", Word2 = "Offer")
+                                                ||
+                                                vv
+                               Posterior Probability: P(Spam | Words)
+                               (Assign class with maximum posterior probability)
+```
+
+---
+
+### 📐 Clean Mathematical Formulation
+
+```text
+Bayes' Theorem:    Posterior = ( Likelihood * Prior ) / Evidence
+Spoken Equation:   P(Class | Features) = [ P(Features | Class) * P(Class) ] / P(Features)
+Naive Assumption:  P(x1, x2, ..., xd | Class) = P(x1|Class) * P(x2|Class) * ... * P(xd|Class)
+Classification:    Predicted_Class = argmax_c [ P(Class_c) * Product_{j=1..d} P(x_j | Class_c) ]
+```
+
+$$
+P(C_k \mid \mathbf{x}) = \frac{P(C_k) \prod_{j=1}^{d} P(x_j \mid C_k)}{P(\mathbf{x})}
+$$
+
+---
+
+### ⚙️ The 3 Core Variants to Know in Interviews
+
+1. **Gaussian Naive Bayes:**
+   - Used for continuous numerical features. Assumes features follow a normal distribution $\mathcal{N}(\mu_c, \sigma_c^2)$ within each class.
+2. **Multinomial Naive Bayes:**
+   - Used for discrete count data (e.g., word frequency counts in text documents and NLP spam filtering).
+3. **Bernoulli Naive Bayes:**
+   - Used for binary indicator features (e.g., whether a word appears or does not appear in a text).
+
+---
+
+### ⚠️ Critical Interview Concept: Laplace Smoothing (Zero Frequency Problem)
+* **The Problem:** If a feature/word never appeared with a specific class in the training dataset, its probability $P(x_j \mid \text{Class}) = 0$. Since all probabilities are multiplied together, a single zero cancels out the entire product, resulting in a zero posterior probability!
+* **The Solution (Laplace Smoothing):** Add a pseudo-count $\alpha = 1$ to the numerator and total vocabulary size $V$ to the denominator:
+  ```text
+  Smoothed Probability = ( Count_of_Word_in_Class + 1 ) / ( Total_Words_in_Class + Vocabulary_Size )
+  ```
+  This guarantees that no unseen feature ever forces a total probability of zero.
+
+---
+
+# Section 5: Decision Trees
 
 ### 🎙️ The Definition to Recite:
 > *"A Decision Tree is a non-parametric supervised learning algorithm that makes predictions by recursively partitioning the feature space into orthogonal sub-regions based on feature split criteria, forming a hierarchical tree of decisions."*
@@ -332,14 +395,14 @@ $$
 
 ---
 
-# Section 5: Ensemble Methods & Random Forest
+# Section 6: Ensemble Methods (Random Forest, GBDT, XGBoost, LightGBM)
 
 ### 🎙️ The Definition to Recite:
-> *"Ensemble methods combine predictions from multiple individual base models to achieve superior predictive accuracy, stability, and generalization. Random Forest is an ensemble of decision trees trained in parallel using bootstrap aggregating (bagging) and random feature subsampling."*
+> *"Ensemble methods combine predictions from multiple individual base models to achieve superior predictive accuracy, stability, and generalization. The two primary paradigms are Bagging (parallel variance reduction) and Boosting (sequential bias reduction)."*
 
 ---
 
-### 📊 Visual Graph Representation
+### 📊 Random Forest Architecture (Bagging + Feature Subsampling)
 
 ```mermaid
 flowchart TD
@@ -365,7 +428,7 @@ flowchart TD
 ---
 
 ### 🌲 Why Feature Subsampling is Critical
-* Standard bagging on decision trees often produces correlated trees if one or two features are overwhelmingly predictive (all trees will split on that feature first).
+* Standard bagging on decision trees produces correlated trees if one or two features are overwhelmingly predictive (all trees split on that feature first).
 * Random Forest forces each split to choose from only a random subset of features:
   ```text
   Feature Subset Size for Classification = SquareRoot( Total_Features )
@@ -375,7 +438,7 @@ flowchart TD
 
 ---
 
-### 📐 Out-Of-Bag (OOB) Error: The Built-In Cross-Validation
+### 📐 Out-Of-Bag (OOB) Error: Built-In Cross-Validation
 * When drawing $N$ samples with replacement, the probability of any given row being left out is:
   ```text
   Probability row omitted = (1 - 1/N)^N  -->  1/e  ≈  36.8%
@@ -384,19 +447,24 @@ flowchart TD
 
 ---
 
-### 🚀 Bagging vs. Boosting Master Comparison
+### 🚀 Boosting Family: GBDT vs. XGBoost vs. LightGBM
 
-| Attribute | Bagging (Random Forest) | Boosting (XGBoost, LightGBM) |
+```text
+Sequential Boosting Logic:
+Step 0: Baseline Prediction (Mean of y)  --> Residual Errors
+Step 1: Train Shallow Tree 1 on Residuals --> Multiply by Learning Rate (eta) --> Update Residuals
+Step 2: Train Shallow Tree 2 on New Residuals --> Repeat M times until loss minimizes
+```
+
+| Model | Core Optimization Mechanics | Key Production Advantage |
 | :--- | :--- | :--- |
-| **Execution** | **Parallel** (Trees built independently) | **Sequential** (Each tree fixes prior errors) |
-| **Primary Goal** | **Reduces Variance** (Stops overfitting) | **Reduces Bias** (Increases learning power) |
-| **Base Estimator** | Deep, unpruned trees | Shallow, weak learners (stumps, depth 3–6) |
-| **Weights** | Equal voting weight for all trees | Higher weights assigned to accurate trees |
-| **Outlier Risk** | Low (Averaging absorbs noise) | High (Iteratively over-focuses on outliers) |
+| **Standard GBDT** | First-order gradient descent on residuals; level-wise greedy tree growth. | Baseline algorithm; slow on large tabular datasets. |
+| **XGBoost** | Uses **second-order Taylor expansion** (Gradients + Hessians); built-in L1/L2 regularization on leaf weights; handles missing values automatically. | Extremely robust against overfitting; dominant in tabular ML competitions. |
+| **LightGBM** | Uses **Histogram-based split finding** (bins continuous values into 256 discrete bins) and **Leaf-wise tree growth** with depth limits. | **10x to 15x faster training** and significantly lower RAM usage than XGBoost. |
 
 ---
 
-# Section 6: Support Vector Machines (SVM)
+# Section 7: Support Vector Machines (SVM)
 
 ### 🎙️ The Definition to Recite:
 > *"Support Vector Machines are supervised models that construct an optimal separating hyperplane in a multidimensional space to segregate classes with the maximum geometric margin—the perpendicular distance between the hyperplane and the closest data points, known as Support Vectors."*
@@ -453,54 +521,6 @@ $$
 
 ---
 
-# Section 7: Principal Component Analysis (PCA)
-
-### 🎙️ The Definition to Recite:
-> *"Principal Component Analysis is an unsupervised linear dimensionality reduction technique that transforms a set of correlated variables into a smaller set of orthogonal, linearly uncorrelated variables called Principal Components, ranked by the proportion of total dataset variance they explain."*
-
----
-
-### 📊 Visual Graph Representation
-
-```text
- Feature 2 |
-           |                         ^  PC1 (First Principal Component)
-           |                        /   - Direction of MAXIMUM variance
-           |                    •  /    - Captures the primary data spread
-           |                 •   •/ •
-           |             •  •  • /
-           |          •  •  •   /•
-           |           •  •    /
-           |       •  •       /
-           |      /          /
-           |     v <-------+------->  PC2 (Second Principal Component)
-           |                \         - Orthogonal (90 degrees) to PC1
-           |                 \        - Captures remaining variance
-           +----------------------------------------------------> Feature 1
-```
-
----
-
-### ⚙️ The 4-Step Mathematical Procedure
-
-1. **Standardize Data:** Normalize each feature to zero mean and unit variance (`z = (x - mean) / std`).
-2. **Covariance Matrix:** Compute feature-by-feature covariance (`Covariance = (1 / (N - 1)) * X^T * X`).
-3. **Eigen-Decomposition:** Solve for eigenvalues and eigenvectors:
-   ```text
-   Covariance_Matrix * Eigenvector = Eigenvalue * Eigenvector
-   ```
-   - **Eigenvector:** The spatial direction of the principal axis.
-   - **Eigenvalue:** The magnitude of data variance captured along that axis.
-4. **Project:** Multiply original data by the top $k$ eigenvectors with the largest eigenvalues.
-
----
-
-### ⚠️ Two Essential Properties for Interviews
-1. **Orthogonality:** Every principal component is at a 90-degree angle to every other component. Their correlation is **strictly 0.0**, completely eliminating multicollinearity.
-2. **Unsupervised:** PCA ignores target labels $y$; it preserves variance within the feature matrix $X$ alone.
-
----
-
 # Section 8: K-Nearest Neighbors (KNN)
 
 ### 🎙️ The Definition to Recite:
@@ -552,75 +572,83 @@ $$
 
 ---
 
-# Section 9: K-Means Clustering
+# Section 9: Clustering: K-Means vs. DBSCAN vs. Hierarchical
 
 ### 🎙️ The Definition to Recite:
-> *"K-Means is an unsupervised iterative partition-based clustering algorithm that groups $N$ unlabeled observations into $K$ distinct clusters by minimizing the Within-Cluster Sum of Squares (Inertia) between data points and their assigned cluster centroids."*
+> *"Clustering is an unsupervised learning technique that groups unlabeled observations into natural subsets based on similarity. Partition-based methods (K-Means) optimize spherical cluster distances, while density-based methods (DBSCAN) discover arbitrary cluster shapes and isolate noise."*
 
 ---
 
-### 📊 Visual Graph Representation
-
-```mermaid
-flowchart TD
-    Step1["<b>Step 1: Initialization</b><br/>Choose K centroids (using K-Means++ dispersion)"]
-    Step2["<b>Step 2: Assignment</b><br/>Assign every data point to its closest centroid via Euclidean distance"]
-    Step3["<b>Step 3: Update Centroids</b><br/>Recalculate centroid coordinates as the mean average of assigned points"]
-    Step4{"<b>Step 4: Convergence Check</b><br/>Did centroid coordinates change?"}
-
-    Step1 --> Step2
-    Step2 --> Step3
-    Step3 --> Step4
-    Step4 -- Yes (Positions shifted) --> Step2
-    Step4 -- No (Stable) --> Done["<b>Converged!</b><br/>Final Clusters Established"]
-```
-
----
-
-### 📐 The Mathematical Objective (Inertia / WCSS)
+### 📊 K-Means vs. DBSCAN Visual Comparison
 
 ```text
-Inertia (WCSS) = Sum over all clusters [ Sum of squared distances from points to centroid ]
+ K-Means (Assumes Spherical Clusters)     DBSCAN (Density-Based Arbitrary Shapes)
+             •••••                                     •••••••••••
+           ••  C1 ••                                 ••           ••  <-- Outer Ring
+             •••••                                  •   •••••••     •
+                                                   •   •  Core •     •
+             •••••                                  •   •••••••     •
+           ••  C2 ••                                 ••           ••
+             •••••                                     •••••••••••       x  <-- Noise (Outlier)
 ```
-
-$$
-\mathcal{J}_{\text{WCSS}} = \sum_{k=1}^{K} \sum_{\mathbf{x} \in S_k} \|\mathbf{x} - \boldsymbol{\mu}_k\|^2
-$$
 
 ---
 
-### 📏 Selecting Optimal $K$: The Elbow Method
+### ⚙️ The 3 Core Clustering Algorithms
+
+#### 1. K-Means & K-Means++
+- **Mechanics:** Initializes $K$ centroids, assigns points to the nearest centroid via Euclidean distance, re-centers centroids at the cluster mean, and iterates until convergence.
+- **Inertia (WCSS):** Sum of squared distances from points to their assigned cluster centroid.
+- **K-Means++:** Initializes centroids with probabilities proportional to squared distance from existing centroids, preventing bad local minima.
+- **Limitation:** Fails on non-spherical shapes; requires specifying $K$ upfront.
+
+#### 2. DBSCAN (Density-Based Spatial Clustering of Applications with Noise)
+- **Mechanics:** Groups points that have at least `MinPts` neighbors within an `Epsilon` radius ($\epsilon$).
+  - **Core Point:** Has $\ge \text{MinPts}$ neighbors within radius $\epsilon$.
+  - **Border Point:** Within radius $\epsilon$ of a Core Point, but has $< \text{MinPts}$ neighbors.
+  - **Noise Point:** Isolated point with no Core Points nearby (labeled as `-1`).
+- **Production Advantage:** Discovers non-spherical clusters (rings, spirals); does not require setting $K$; automatically identifies outliers.
+
+#### 3. Hierarchical Agglomerative Clustering
+- **Mechanics:** Bottom-up approach where every point starts as its own cluster. At each step, the two closest clusters are merged until only one remains.
+- **Dendrogram:** Tree diagram visualizing cluster merges across distance thresholds, allowing the user to select the optimal cluster cutoff visually.
+
+---
+
+# Section 10: Dimensionality Reduction: PCA, t-SNE & UMAP
+
+### 🎙️ The Definition to Recite:
+> *"Dimensionality reduction techniques compress high-dimensional feature spaces into lower-dimensional representations. Linear methods (PCA) maximize retained feature variance, while non-linear manifold methods (t-SNE and UMAP) preserve local neighbor relationships for embedding visualization."*
+
+---
+
+### 📊 Visual Comparison: PCA vs. t-SNE / UMAP
 
 ```text
- Inertia |
- (WCSS)  |  \
-         |   \
-         |    \
-         |     \
-         |      •  <-- The "Elbow Point" (Optimal K = 3)
-         |       \____
-         |            \______
-         |                   \________
-         +---------------------------------------> Number of Clusters (K)
-            K=1   K=2   K=3   K=4   K=5   K=6
+ PCA: Linear Projection (Preserves Variance)     t-SNE / UMAP: Non-Linear Manifold
+                ^ PC1 (Max Variance)                           Cluster B
+               /                                              •••••
+           •• / ••                                           ••   ••
+          •• / ••                                              •••••
+            /                                          Cluster A
+           /  PC2 (Orthogonal)                          •••••
+          +-------->                                   ••   ••
+                                                         •••••
 ```
 
-* **Elbow Method:** Plot Inertia against $K$. The optimal $K$ is the inflection point where additional clusters yield diminishing returns.
-* **Silhouette Score:** Evaluates cluster compactness vs. separation:
-  ```text
-  Silhouette = (Distance_to_Nearest_Cluster - Mean_Distance_Within_Cluster) / Max(Distances)
-  ```
-  - Ranges from `-1.0` (bad clustering) to `+1.0` (tight, well-separated clusters).
+---
+
+### ⚙️ Master Comparison Table for Interviews
+
+| Method | Type | Primary Objective | When to Use in Production |
+| :--- | :--- | :--- | :--- |
+| **PCA** | **Linear** | Projects data onto orthogonal axes of maximum variance via Eigen-decomposition. | Reducing tabular feature counts, removing multicollinearity, preprocessing before KNN/Linear models. |
+| **t-SNE** | **Non-Linear** | Minimizes Kullback-Leibler (KL) divergence between high-dim and low-dim probability distributions. | **Visualization only** in 2D/3D (e.g. visualizing image or text embeddings). Does NOT preserve global distances; slow $\mathcal{O}(N^2)$. |
+| **UMAP** | **Non-Linear** | Models data as a Riemannian manifold with fuzzy simplicial sets. | Visualizing and clustering high-dimensional embeddings (Word2Vec, OpenAI embeddings). **Preserves both local and global structure**, and scales $\mathcal{O}(N \log N)$. |
 
 ---
 
-### ⚠️ Why K-Means++ is Superior to Random Initialization
-* Standard random initialization can place multiple centroids close together, trapping the algorithm in bad local minima.
-* **K-Means++:** Picks the first centroid randomly, then chooses each subsequent centroid with a probability proportional to its squared distance from the nearest existing centroid. This guarantees initial centroids are well-dispersed across the data.
-
----
-
-# Section 10: Loss Functions Master Summary
+# Section 11: Loss Functions Master Summary
 
 ### 📊 Visual Comparison of Regression Losses
 
@@ -652,7 +680,7 @@ $$
 
 ---
 
-# Section 11: Optimizers & Gradient Descent
+# Section 12: Optimizers & Gradient Descent
 
 ### 🎙️ The Definition to Recite:
 > *"An optimization algorithm iteratively adjusts model parameters (weights and biases) in the direction of the negative gradient of the loss function to minimize objective prediction error."*
@@ -713,7 +741,117 @@ Weight_New    = Weight_Old - [ Learning_Rate / (SquareRoot(Second_Moment) + Epsi
 
 ---
 
-# Section 12: Top 10 Rapid-Fire ML Interview Q&A (Direct Recital)
+# Section 13: Model Evaluation & Classification Metrics
+
+### 🎙️ The Definition to Recite:
+> *"Classification metrics evaluate model predictions against actual ground truth to reflect specific business trade-offs. Overall accuracy is often deceptive, requiring precision, recall, F1-score, and area under ROC/PR curves to assess true discriminative performance."*
+
+---
+
+### 📊 The Confusion Matrix Visual Breakdown
+
+```text
+                      PREDICTED POSITIVE          PREDICTED NEGATIVE
+ ACTUAL POSITIVE | True Positive (TP)      |  False Negative (FN)     |  <-- Recall = TP / (TP + FN)
+                 | (Caught fraud correctly) |  (Missed fraud! Danger!) |
+ ----------------+--------------------------+--------------------------+
+ ACTUAL NEGATIVE | False Positive (FP)     |  True Negative (TN)      |  <-- Specificity = TN / (TN + FP)
+                 | (False alarm! Annoying)  |  (Correctly ignored)     |
+                 +--------------------------+--------------------------+
+                   v Precision = TP / (TP + FP)
+```
+
+---
+
+### 📐 Spoken Metric Formulations
+
+* **Accuracy:** `(TP + TN) / (TP + TN + FP + FN)`
+  - Measures total percentage of correct guesses. **Fails on imbalanced data.**
+* **Precision:** `TP / (TP + FP)`
+  - *Question answered:* Of all instances we flagged as positive, how many were actually positive?
+  - *High priority in:* Spam filters, search recommendation systems (minimize false alarms).
+* **Recall (Sensitivity):** `TP / (TP + FN)`
+  - *Question answered:* Of all actual positive instances out there, how many did we catch?
+  - *High priority in:* Fraud detection, cancer diagnosis (missing a positive is catastrophic).
+* **F1-Score:** `2 * [ (Precision * Recall) / (Precision + Recall) ]`
+  - Harmonic mean of Precision and Recall. Gives a balanced evaluation metric for imbalanced data.
+* **ROC-AUC vs. PR-AUC:**
+  - **ROC-AUC (Receiver Operating Characteristic):** Plots True Positive Rate vs. False Positive Rate across all classification thresholds. Evaluates general ranking quality across balanced datasets.
+  - **PR-AUC (Precision-Recall AUC):** Plots Precision vs. Recall. **Mandatory for heavily skewed datasets** (e.g. 0.1% fraud), as it focuses exclusively on the minority class without being inflated by true negatives.
+
+---
+
+# Section 14: Validation Strategies & Preventing Data Leakage
+
+### 🎙️ The Definition to Recite:
+> *"Validation strategies partition available data to simulate real-world generalization performance on unseen production distributions. Data leakage occurs when test-set information inadvertently influences the training phase, creating falsely optimistic validation metrics that collapse in production."*
+
+---
+
+### 📊 Cross-Validation Strategies Visual Map
+
+```text
+ 1. Standard K-Fold:      [ Fold 1 (Test) ][ Fold 2 ][ Fold 3 ][ Fold 4 ][ Fold 5 ]
+                          [ Fold 1 ][ Fold 2 (Test) ][ Fold 3 ][ Fold 4 ][ Fold 5 ]
+
+ 2. Stratified K-Fold:    Preserves exact target class ratio (e.g. 95% Neg / 5% Pos) in every fold.
+
+ 3. Time-Series Split:    Train: [Day 1 - 10]  --> Test: [Day 11 - 15]
+                          Train: [Day 1 - 15]  --> Test: [Day 16 - 20]  (Never train on future!)
+```
+
+---
+
+### ⚠️ Top 3 Causes of Data Leakage (Interview Warning)
+
+1. **Preprocessing Before Splitting:**
+   - Fitting a scaler (`StandardScaler.fit()`) or imputer on the entire dataset *before* the train-test split leaks test mean/variance into the training data.
+   - *Remedy:* Always fit transformers **only on the training split**, then `transform()` the test set.
+2. **Target Leakage in Feature Engineering:**
+   - Calculating target-encoded features using the target values of the current row or entire fold without out-of-fold cross-validation.
+3. **Temporal Leakage in Time-Series:**
+   - Shuffling time-series observations randomly. Using tomorrow's stock price or transaction frequency to predict yesterday's event.
+
+---
+
+# Section 15: Feature Engineering & Preprocessing
+
+### 🎙️ The Definition to Recite:
+> *"Feature engineering and preprocessing transform raw, messy inputs into mathematically optimal representations that expose the underlying patterns to learning algorithms without introducing distortion or dimensional explosion."*
+
+---
+
+### 📊 Encoding Categorical Variables
+
+| Encoding Strategy | Mechanism | When to Use | Risk / Consideration |
+| :--- | :--- | :--- | :--- |
+| **One-Hot Encoding** | Creates a new binary column (0/1) for every distinct category. | Low-cardinality nominal categories (e.g. Gender, Country < 10). | Causes the Curse of Dimensionality if cardinality $> 50$. |
+| **Ordinal Encoding** | Maps categories to integers (1, 2, 3...) based on rank. | Variables with clear natural ordering (e.g. Low, Medium, High). | Imposes artificial mathematical distance if used on nominal data. |
+| **Target Encoding** | Replaces each category with the average target value for that category. | High-cardinality nominal variables (e.g. Zip code, Product ID). | High risk of data leakage and overfitting; requires smoothing. |
+
+---
+
+### 📊 Feature Scaling Strategies
+
+* **StandardScaler (Z-Score):**
+  ```text
+  z = (x - mean) / standard_deviation
+  ```
+  - Centers features at 0 with a unit variance of 1. Best for algorithms assuming Gaussian distributions (Linear/Logistic Regression, PCA, Neural Networks).
+* **MinMaxScaler:**
+  ```text
+  x_scaled = (x - min) / (max - min)
+  ```
+  - Compresses features into a rigid `[0, 1]` bounding box. Highly sensitive to extreme outliers.
+* **RobustScaler:**
+  ```text
+  x_scaled = (x - median) / Interquartile_Range (Q3 - Q1)
+  ```
+  - Uses median and IQR; immune to extreme outlier distortion.
+
+---
+
+# Section 16: Top 15 Rapid-Fire ML Interview Q&A (Direct Recital)
 
 ---
 
@@ -755,32 +893,62 @@ Weight_New    = Weight_Old - [ Learning_Rate / (SquareRoot(Second_Moment) + Epsi
 
 ---
 
-### Q6: "What is Out-Of-Bag (OOB) error in Random Forest?"
+### Q6: "What is the 'Naive' assumption in Naive Bayes, and why does it still perform well?"
+**Direct Spoken Recital:**
+> *"It naively assumes all predictor features are conditionally independent given the class label. While this assumption is almost always violated in real-world data, Naive Bayes still performs well because classification only requires getting the **ranking of probabilities** right, not their exact numerical values."*
+
+---
+
+### Q7: "What is the Zero-Frequency problem in Naive Bayes and how do you fix it?"
+**Direct Spoken Recital:**
+> *"If a categorical value or word was never seen with a particular class during training, its likelihood probability is zero, which zeroes out the entire class probability. We fix it using **Laplace Smoothing**, adding a pseudo-count of 1 to the numerator and total vocabulary size to the denominator."*
+
+---
+
+### Q8: "When would you choose DBSCAN over K-Means?"
+**Direct Spoken Recital:**
+> *"I choose DBSCAN when the data has **arbitrary, non-spherical cluster geometries** (such as concentric circles or winding paths) and when the dataset contains significant noise and outliers that should be flagged and ignored rather than forced into clusters."*
+
+---
+
+### Q9: "Why can't PCA be used for visualizing high-dimensional embeddings like t-SNE or UMAP?"
+**Direct Spoken Recital:**
+> *"PCA is a linear projection technique that preserves global variance across orthogonal axes; it forces non-linear manifold structures to collapse, causing distinct embedding clusters to overlap. t-SNE and UMAP preserve non-linear local neighborhood probabilities, cleanly untangling cluster embeddings in 2D."*
+
+---
+
+### Q10: "What is Out-Of-Bag (OOB) error in Random Forest?"
 **Direct Spoken Recital:**
 > *"When bootstrapping with replacement, approximately **36.8% of training observations are left out** of each individual tree's training set. The Out-Of-Bag error evaluates each tree on its unselected observations, providing a built-in cross-validation score without needing a separate held-out validation set."*
 
 ---
 
-### Q7: "What is the Curse of Dimensionality?"
+### Q11: "What is the Curse of Dimensionality?"
 **Direct Spoken Recital:**
 > *"As the number of features increases, the volume of the feature space grows exponentially, causing data points to become extremely sparse and roughly equidistant from one another. This erodes the discriminative utility of distance metrics in algorithms like KNN and K-Means. We solve it using **PCA** or feature selection."*
 
 ---
 
-### Q8: "How does Gradient Boosting work in simple terms?"
+### Q12: "How does Gradient Boosting work in simple terms?"
 **Direct Spoken Recital:**
 > *"Gradient Boosting builds an ensemble step-by-step. It starts with an initial baseline prediction, calculates the residual errors of the loss function, trains a shallow decision tree to predict those errors, scales the tree's contribution by a learning rate, and iteratively adds new trees until the overall loss is minimized."*
 
 ---
 
-### Q9: "What is the difference between Parametric and Non-Parametric models?"
+### Q13: "What causes Data Leakage and how do you prevent it?"
+**Direct Spoken Recital:**
+> *"Data leakage happens when information from the test or validation set contaminates model training. The most common causes are fitting scalers or imputers across the entire dataset before splitting, and random shuffling of time-series data. It is prevented by strictly performing all transformations inside training folds only."*
+
+---
+
+### Q14: "What is the difference between Parametric and Non-Parametric models?"
 **Direct Spoken Recital:**
 > *"**Parametric models** (like Linear and Logistic Regression) assume a fixed mathematical structure with a static set of weights that does not change as data grows. 
 > **Non-parametric models** (like Decision Trees and KNN) make no rigid structural assumptions; their complexity and parameters grow dynamically with the volume of training data."*
 
 ---
 
-### Q10: "How do you detect and resolve multicollinearity?"
+### Q15: "How do you detect and resolve multicollinearity?"
 **Direct Spoken Recital:**
 > *"Multicollinearity is diagnosed using correlation matrices and the **Variance Inflation Factor (VIF)**, where a VIF value greater than 5 indicates severe correlation. 
 > It is resolved by **dropping one of the redundant features**, applying **PCA** to produce orthogonal components, or utilizing **L2 Ridge Regularization**, which stabilizes weight calculations."*
@@ -791,4 +959,4 @@ Weight_New    = Weight_Old - [ Learning_Rate / (SquareRoot(Second_Moment) + Epsi
 
 1. **Bias vs. Variance:** Underfitting = High Bias (increase capacity); Overfitting = High Variance (regularize, prune, or bag).
 2. **Feature Scale:** Always state whether an algorithm is scale-sensitive (distance/variance based) or scale-invariant (rule/tree based).
-3. **Imbalanced Targets:** Never report raw accuracy for fraud or anomaly detection; always report Precision, Recall, and F1-Score.
+3. **Imbalanced Targets:** Never report raw accuracy for fraud or anomaly detection; always report Precision, Recall, F1-Score, and PR-AUC.
