@@ -7,6 +7,7 @@
 ---
 
 ## 🧭 Companion Guides
+- [ML_CORE_CONCEPTS.md](ML_CORE_CONCEPTS.md) — 🧠 Machine Learning Core Concepts & Top 10 Interview Q&A
 - [EXPERIENCE_AND_BACKGROUND.md](EXPERIENCE_AND_BACKGROUND.md) — 🎙️ Rahul's Interview Speaking Guide (WPP, Cognizant, Projects)
 - [README_V2.md](README_V2.md) — 8-Level Easy-Learn GenAI & ML Lead Study Guide
 - [interview_explanations.md](interview_explanations.md) — 117 Question & Answer Breakdown
