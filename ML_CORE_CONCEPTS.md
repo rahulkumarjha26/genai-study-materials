@@ -145,7 +145,7 @@ $$
 \hat{y} = \mathbf{w}^T \mathbf{x} + b, \qquad \mathcal{L}_{\text{MSE}} = \frac{1}{N}\sum_{i=1}^{N}(y_i - \hat{y}_i)^2
 $$
 
-* **Closed-Form (OLS):** Finds exact minimum in one step, but computing $(X^T X)^{-1}$ has complexity $\mathcal{O}(d^3)$, becoming slow when feature count $d > 10,000$.
+* **Closed-Form (OLS):** Finds exact minimum in one step, but computing $(X^T X)^{-1}$ has complexity `O(d^3)`, becoming slow when feature count $d > 10,000$.
 * **Gradient Descent:** Scales to millions of rows and features by taking small iterative steps downhill.
 
 ---
@@ -281,7 +281,7 @@ flowchart LR
   - **Answer:** *"Classification does not require exact probability calibration; it only requires correct probability **ranking**. Even if correlated features push the computed probabilities toward 0 or 1, the relative rank order between classes usually remains correct, leading to high classification accuracy."*
 
 * **Q2: "What is the primary advantage of Naive Bayes over complex deep learning models?"**
-  - **Answer:** *"Naive Bayes requires zero iterative optimization—it computes simple counts in $\mathcal{O}(N \cdot d)$ time. It trains instantly, consumes negligible memory, handles high-dimensional sparse text exceptionally well, and serves as an unbeatable fast baseline."*
+  - **Answer:** *"Naive Bayes requires zero iterative optimization—it computes simple counts in `O(N * d)` time. It trains instantly, consumes negligible memory, handles high-dimensional sparse text exceptionally well, and serves as an unbeatable fast baseline."*
 
 ---
 
@@ -444,7 +444,7 @@ Many linear boundaries can separate two classes, but boundaries that pass too cl
   - **Answer:** *"SVM optimizes the geometric margin using Euclidean distance calculations ($\|\mathbf{w}\|$). If one feature has a large numerical range (e.g., Salary in thousands) and another has a small range (e.g., Age in decades), the unscaled larger feature will completely dominate the distance metric, making the SVM ignore the smaller feature."*
 
 * **Q2: "What is the primary operational drawback of SVM compared to Tree Ensembles?"**
-  - **Answer:** *"SVM training complexity scales quadratically or cubically with the number of samples ($\mathcal{O}(N^2)$ to $\mathcal{O}(N^3)$). For datasets exceeding 100,000 observations, SVM becomes impractically slow to train compared to LightGBM or neural networks."*
+  - **Answer:** *"SVM training complexity scales quadratically or cubically with the number of samples (`O(N^2)` to `O(N^3)`). For datasets exceeding 100,000 observations, SVM becomes impractically slow to train compared to LightGBM or neural networks."*
 
 ---
 
@@ -494,7 +494,7 @@ Sometimes you don't need a complex mathematical formula or equation to make a pr
 ### 🛡️ 7. The Interview Defense (Top 2 Cross-Questions)
 
 * **Q1: "Why is KNN called a 'Lazy Learner' and what is its production cost?"**
-  - **Answer:** *"It is called 'lazy' because its training phase is $\mathcal{O}(1)$—it literally does nothing except store training data in memory. However, its inference cost is extremely expensive: for every single query, it must compute distances to all $N$ data points ($\mathcal{O}(N \cdot d)$ time), making it unsuitable for real-time, low-latency production serving on large datasets."*
+  - **Answer:** *"It is called 'lazy' because its training phase is `O(1)`—it literally does nothing except store training data in memory. However, its inference cost is extremely expensive: for every single query, it must compute distances to all $N$ data points (`O(N * d)` time), making it unsuitable for real-time, low-latency production serving on large datasets."*
 
 * **Q2: "How can you speed up inference in KNN?"**
   - **Answer:** *"Instead of brute-force exhaustive scanning, we index the training vectors using spatial partitioning trees like **KD-Trees** or **Ball-Trees**, or use Approximate Nearest Neighbor (ANN) vector indexing algorithms like **HNSW**."*
@@ -587,8 +587,8 @@ Datasets with 50 or 100 features often contain massive redundancy (e.g. Height i
 
 ### ⚙️ 5. Non-Linear Embeddings: PCA vs. t-SNE vs. UMAP
 * **PCA (Linear):** Preserves global variance across orthogonal axes. Fast, deterministic, but **flattens non-linear manifolds**, causing distinct embedding clusters to overlap.
-* **t-SNE (Non-Linear):** Preserves local neighbor relationships by minimizing KL divergence. Great for 2D visualization of text/image embeddings, but does not preserve global distances and is slow ($\mathcal{O}(N^2)$).
-* **UMAP (Non-Linear):** Preserves both local and global topology using manifold theory. Faster ($\mathcal{O}(N \log N)$) and preferred for modern high-dimensional embedding visualization.
+* **t-SNE (Non-Linear):** Preserves local neighbor relationships by minimizing KL divergence. Great for 2D visualization of text/image embeddings, but does not preserve global distances and is slow (`O(N^2)`).
+* **UMAP (Non-Linear):** Preserves both local and global topology using manifold theory. Faster (`O(N log N)`) and preferred for modern high-dimensional embedding visualization.
 
 ---
 
