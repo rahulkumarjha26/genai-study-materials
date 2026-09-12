@@ -16,6 +16,7 @@
 ## 🧭 Companion Guides
 - [EXPERIENCE_AND_BACKGROUND.md](EXPERIENCE_AND_BACKGROUND.md) — 🎙️ Rahul's Career Speaking Guide (WPP, Cognizant, Flagship Projects)
 - [FASTAPI_MASTER_GUIDE.md](FASTAPI_MASTER_GUIDE.md) — ⚡ FastAPI Concepts, Async Lifecycles & Serving Architecture
+- [TRANSFORMER_ARCHITECTURE.md](TRANSFORMER_ARCHITECTURE.md) — 🤖 Transformer Architecture, Attention (Q, K, V), RoPE, GQA & Frontier LLMs
 - [README_V2.md](README_V2.md) — 8-Level Enterprise GenAI & Azure Architecture Master Guide
 - [interview_explanations.md](interview_explanations.md) — 117 Recruiter Questions & Deep Technical Explanations
 

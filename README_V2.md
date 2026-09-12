@@ -16,6 +16,7 @@
 > - [EXPERIENCE_AND_BACKGROUND.md](EXPERIENCE_AND_BACKGROUND.md) — 🎙️ Rahul's Career Speaking Guide (WPP, Cognizant, Flagship Projects & Leadership)
 > - [ML_CORE_CONCEPTS.md](ML_CORE_CONCEPTS.md) — 🧠 Machine Learning Core Concepts, Math & Visuals (Bias-Variance, SVM, Trees, PCA)
 > - [FASTAPI_MASTER_GUIDE.md](FASTAPI_MASTER_GUIDE.md) — ⚡ FastAPI Serving Architecture, Async Lifecycles & Production Patterns
+> - [TRANSFORMER_ARCHITECTURE.md](TRANSFORMER_ARCHITECTURE.md) — 🤖 Transformer Architecture, Attention (Q, K, V), RoPE, GQA & Frontier LLMs
 > - [interview_questions.md](interview_questions.md) — Master Question Bank of 117 Principal & Lead Recruiter Inquiries
 > - [interview_explanations.md](interview_explanations.md) — Comprehensive Explanations & Deep-Dive Architecture Answers
 

@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 460" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+    <marker id="arr4" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#8b949e"/>
+    </marker>
+  </defs>
+
+  <rect width="800" height="460" rx="12" fill="url(#bgGrad4)" stroke="#30363d" stroke-width="1.5"/>
+
+  <!-- Title -->
+  <text x="400" y="32" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="700" text-anchor="middle">KV Caching in Autoregressive Generation: Prefill vs. Decode</text>
+  <text x="400" y="52" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" text-anchor="middle">Transforming Token Generation Complexity from O(N²) quadratic recomputations down to O(1) per step</text>
+
+  <!-- Left: Phase 1: Prefill Phase (Prompt) -->
+  <rect x="40" y="75" width="340" height="350" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+  <rect x="55" y="88" width="120" height="22" rx="4" fill="#1f6feb" fill-opacity="0.3"/>
+  <text x="115" y="103" fill="#79c0ff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" text-anchor="middle">1. Prefill Phase</text>
+  <text x="185" y="103" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">Parallel Matrix Compute</text>
+
+  <text x="55" y="135" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12">Input Prompt: <tspan fill="#f0f6fc" font-weight="600">"The capital of France is"</tspan></text>
+
+  <!-- Visual Matrix -->
+  <g transform="translate(55, 155)">
+    <rect x="0" y="0" width="55" height="30" rx="4" fill="#21262d" stroke="#58a6ff"/>
+    <text x="27" y="19" fill="#f0f6fc" font-size="11" text-anchor="middle">"The"</text>
+
+    <rect x="62" y="0" width="60" height="30" rx="4" fill="#21262d" stroke="#58a6ff"/>
+    <text x="92" y="19" fill="#f0f6fc" font-size="11" text-anchor="middle">"capital"</text>
+
+    <rect x="129" y="0" width="45" height="30" rx="4" fill="#21262d" stroke="#58a6ff"/>
+    <text x="151" y="19" fill="#f0f6fc" font-size="11" text-anchor="middle">"of"</text>
+
+    <rect x="181" y="0" width="60" height="30" rx="4" fill="#21262d" stroke="#58a6ff"/>
+    <text x="211" y="19" fill="#f0f6fc" font-size="11" text-anchor="middle">"France"</text>
+
+    <rect x="248" y="0" width="45" height="30" rx="4" fill="#21262d" stroke="#58a6ff"/>
+    <text x="270" y="19" fill="#f0f6fc" font-size="11" text-anchor="middle">"is"</text>
+  </g>
+
+  <text x="55" y="215" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">• Computes Q, K, V for all 5 prompt tokens in parallel.</text>
+  <text x="55" y="235" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">• Stores K and V vectors for all 5 tokens in GPU RAM.</text>
+
+  <rect x="55" y="255" width="310" height="70" rx="6" fill="#238636" fill-opacity="0.15" stroke="#3fb950"/>
+  <text x="210" y="278" fill="#7ee787" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" text-anchor="middle">KV Cache Initialized in VRAM</text>
+  <text x="210" y="298" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" text-anchor="middle">Keys: [ K₁, K₂, K₃, K₄, K₅ ]</text>
+  <text x="210" y="314" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" text-anchor="middle">Values: [ V₁, V₂, V₃, V₄, V₅ ]</text>
+
+  <text x="55" y="355" fill="#3fb950" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600">Generated First Token: " Paris"</text>
+  <text x="55" y="375" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">Time-To-First-Token (TTFT) latency is measured here.</text>
+
+  <!-- Right: Phase 2: Autoregressive Decode Phase -->
+  <rect x="420" y="75" width="340" height="350" rx="8" fill="#161b22" stroke="#3fb950" stroke-width="2"/>
+  <rect x="435" y="88" width="130" height="22" rx="4" fill="#238636" fill-opacity="0.3"/>
+  <text x="500" y="103" fill="#7ee787" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" text-anchor="middle">2. Decode Phase</text>
+  <text x="575" y="103" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">Token-by-Token Streaming</text>
+
+  <text x="435" y="135" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12">Next Step: Generate Token #7</text>
+
+  <!-- Visual Representation of Cached vs New -->
+  <g transform="translate(435, 155)">
+    <!-- 5 Cached tokens (Ghosted/Gray) -->
+    <rect x="0" y="0" width="180" height="30" rx="4" fill="#21262d" stroke="#8b949e" stroke-dasharray="3,3"/>
+    <text x="90" y="19" fill="#8b949e" font-size="11" text-anchor="middle">Cached [ K₁..₅ , V₁..₅ ]</text>
+
+    <!-- 1 Newly Generated Token "Paris" -->
+    <rect x="188" y="0" width="70" height="30" rx="4" fill="#a371f7" fill-opacity="0.3" stroke="#bc8cff"/>
+    <text x="223" y="19" fill="#d2a8ff" font-size="11" font-weight="600" text-anchor="middle">"Paris"</text>
+  </g>
+
+  <!-- Key Difference Box -->
+  <rect x="435" y="200" width="310" height="125" rx="6" fill="#21262d" stroke="#30363d"/>
+  <text x="445" y="222" fill="#58a6ff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700">WITHOUT KV CACHE (Naive O(N²)):</text>
+  <text x="445" y="238" fill="#f85149" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">Must recompute all 6 tokens from scratch.</text>
+  <text x="445" y="252" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10">Becomes painfully slow as context grows to 4K+ tokens.</text>
+
+  <text x="445" y="278" fill="#3fb950" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700">WITH KV CACHE (Production Standard O(1)):</text>
+  <text x="445" y="294" fill="#7ee787" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">Compute Query ONLY for the single new token!</text>
+  <text x="445" y="308" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10">Attends against cached K &amp; V in memory in constant time.</text>
+
+  <text x="435" y="355" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12">Next Token Generated: <tspan fill="#3fb950" font-weight="700">"."</tspan> (Period)</text>
+  <text x="435" y="375" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">Inter-Token Latency (Time Per Output Token: TPOT).</text>
+</svg>

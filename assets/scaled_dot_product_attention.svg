@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+    <marker id="arr2" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#8b949e"/>
+    </marker>
+    <marker id="arrGreen" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#3fb950"/>
+    </marker>
+  </defs>
+
+  <rect width="800" height="500" rx="12" fill="url(#bgGrad2)" stroke="#30363d" stroke-width="1.5"/>
+
+  <!-- Title -->
+  <text x="400" y="34" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="700" text-anchor="middle">Scaled Dot-Product Attention: Step-by-Step Data Flow</text>
+  <text x="400" y="54" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" text-anchor="middle">Attention(Q, K, V) = Softmax( (Q · Kᵀ) / √dₖ ) · V</text>
+
+  <!-- Left: Inputs Q, K, V -->
+  <!-- Queries Q -->
+  <rect x="100" y="90" width="110" height="42" rx="6" fill="#1f6feb" fill-opacity="0.25" stroke="#58a6ff" stroke-width="1.5"/>
+  <text x="155" y="112" fill="#79c0ff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="700" text-anchor="middle">Query (Q)</text>
+  <text x="155" y="126" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" text-anchor="middle">"What I am looking for"</text>
+
+  <!-- Keys K -->
+  <rect x="250" y="90" width="110" height="42" rx="6" fill="#238636" fill-opacity="0.25" stroke="#3fb950" stroke-width="1.5"/>
+  <text x="305" y="112" fill="#7ee787" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="700" text-anchor="middle">Key (K)</text>
+  <text x="305" y="126" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" text-anchor="middle">"What I have to offer"</text>
+
+  <!-- Values V -->
+  <rect x="610" y="90" width="110" height="42" rx="6" fill="#a371f7" fill-opacity="0.25" stroke="#bc8cff" stroke-width="1.5"/>
+  <text x="665" y="112" fill="#d2a8ff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="700" text-anchor="middle">Value (V)</text>
+  <text x="665" y="126" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" text-anchor="middle">"Actual content"</text>
+
+  <!-- Step 1: MatMul (Q · K^T) -->
+  <line x1="155" y1="132" x2="215" y2="175" stroke="#58a6ff" stroke-width="1.5" marker-end="url(#arr2)"/>
+  <line x1="305" y1="132" x2="245" y2="175" stroke="#3fb950" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+  <rect x="150" y="180" width="160" height="38" rx="6" fill="#21262d" stroke="#30363d" stroke-width="1.5"/>
+  <text x="230" y="198" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" text-anchor="middle">1. MatMul (Q · Kᵀ)</text>
+  <text x="230" y="211" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" text-anchor="middle">Raw Similarity Matrix</text>
+
+  <!-- Step 2: Scale by 1/sqrt(d_k) -->
+  <line x1="230" y1="218" x2="230" y2="245" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+  <rect x="150" y="250" width="160" height="38" rx="6" fill="#21262d" stroke="#d29922" stroke-width="1.5"/>
+  <text x="230" y="268" fill="#e3b341" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" text-anchor="middle">2. Scale by 1 / √dₖ</text>
+  <text x="230" y="281" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" text-anchor="middle">Prevents Vanishing Gradients</text>
+
+  <!-- Step 3: Mask (Optional for causal) -->
+  <line x1="230" y1="288" x2="230" y2="315" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+  <rect x="150" y="320" width="160" height="38" rx="6" fill="#21262d" stroke="#f85149" stroke-width="1.5"/>
+  <text x="230" y="338" fill="#ff7b72" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" text-anchor="middle">3. Apply Causal Mask</text>
+  <text x="230" y="351" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" text-anchor="middle">Sets Future Tokens to -∞</text>
+
+  <!-- Step 4: Softmax -->
+  <line x1="230" y1="358" x2="230" y2="385" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arr2)"/>
+
+  <rect x="150" y="390" width="160" height="38" rx="6" fill="#1f6feb" fill-opacity="0.3" stroke="#58a6ff" stroke-width="2"/>
+  <text x="230" y="408" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="700" text-anchor="middle">4. Softmax</text>
+  <text x="230" y="421" fill="#79c0ff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" text-anchor="middle">Probabilities (Sum = 1.0)</text>
+
+  <!-- Path to Step 5: MatMul with V -->
+  <path d="M 310 409 L 470 409 L 470 270" fill="none" stroke="#58a6ff" stroke-width="2"/>
+  <line x1="470" y1="270" x2="520" y2="270" stroke="#58a6ff" stroke-width="2" marker-end="url(#arr2)"/>
+
+  <!-- Line from V down to Step 5 -->
+  <path d="M 665 132 L 665 240 L 600 255" fill="none" stroke="#bc8cff" stroke-width="2" marker-end="url(#arr2)"/>
+
+  <!-- Step 5: Final MatMul (Weights · V) -->
+  <rect x="520" y="240" width="170" height="50" rx="8" fill="#238636" fill-opacity="0.25" stroke="#3fb950" stroke-width="2"/>
+  <text x="605" y="262" fill="#7ee787" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="700" text-anchor="middle">5. MatMul (Weights · V)</text>
+  <text x="605" y="278" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" text-anchor="middle">Contextual Token Vectors</text>
+
+  <line x1="605" y1="290" x2="605" y2="350" stroke="#3fb950" stroke-width="2" marker-end="url(#arrGreen)"/>
+
+  <!-- Output Box -->
+  <rect x="510" y="355" width="190" height="45" rx="8" fill="#21262d" stroke="#58a6ff" stroke-width="2"/>
+  <text x="605" y="375" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="700" text-anchor="middle">Attention Output</text>
+  <text x="605" y="390" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" text-anchor="middle">Ready for Output Projection W_O</text>
+</svg>

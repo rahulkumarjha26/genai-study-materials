@@ -2,7 +2,11 @@
 
 A comprehensive collection of 117 interview questions extracted directly from handwritten technical preparation notes, categorized by domain without answers.
 
-> 📖 **Complete Study & Revision Guide:** For plain-English, to-the-point explanations, flowcharts, and Jargon Busters for all 117 questions, see [interview_explanations.md](file:///Users/rahuljha/GENAI/interview_explanations.md).
+> 📖 **Complete Study & Revision Guides:**
+> - [interview_explanations.md](interview_explanations.md) — 117 Recruiter Questions & Deep Technical Explanations
+> - [TRANSFORMER_ARCHITECTURE.md](TRANSFORMER_ARCHITECTURE.md) — 🤖 Transformer Architecture, Attention (Q, K, V), RoPE, GQA & Frontier LLMs
+> - [ML_CORE_CONCEPTS.md](ML_CORE_CONCEPTS.md) — 🧠 Core Machine Learning Concepts (Cheat-Sheet Edition)
+> - [README_V2.md](README_V2.md) — ☁️ 8-Level Enterprise GenAI & Azure Architecture Master Guide
 
 ---
 

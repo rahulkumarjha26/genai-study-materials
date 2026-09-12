@@ -1,0 +1,144 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="450" rx="12" fill="url(#bgGrad3)" stroke="#30363d" stroke-width="1.5"/>
+
+  <!-- Title -->
+  <text x="400" y="32" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="700" text-anchor="middle">Attention Mechanisms: MHA vs. GQA vs. MQA</text>
+  <text x="400" y="52" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" text-anchor="middle">How Modern LLMs (Llama 3, Mistral) Slash KV-Cache Memory Without Losing Quality</text>
+
+  <!-- ================= 1. Multi-Head Attention (MHA) ================= -->
+  <rect x="30" y="75" width="225" height="345" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+  <text x="142" y="100" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="700" text-anchor="middle">Multi-Head (MHA)</text>
+  <text x="142" y="118" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" text-anchor="middle">Original Transformer / GPT-3</text>
+
+  <!-- Visual Representation: 8 Qs, 8 Ks, 8 Vs (1:1 Ratio) -->
+  <g transform="translate(45, 135)">
+    <!-- 6 Q Heads -->
+    <rect x="0" y="0" width="28" height="32" rx="4" fill="#1f6feb" fill-opacity="0.3" stroke="#58a6ff"/>
+    <rect x="32" y="0" width="28" height="32" rx="4" fill="#1f6feb" fill-opacity="0.3" stroke="#58a6ff"/>
+    <rect x="64" y="0" width="28" height="32" rx="4" fill="#1f6feb" fill-opacity="0.3" stroke="#58a6ff"/>
+    <rect x="96" y="0" width="28" height="32" rx="4" fill="#1f6feb" fill-opacity="0.3" stroke="#58a6ff"/>
+    <rect x="128" y="0" width="28" height="32" rx="4" fill="#1f6feb" fill-opacity="0.3" stroke="#58a6ff"/>
+    <rect x="160" y="0" width="28" height="32" rx="4" fill="#1f6feb" fill-opacity="0.3" stroke="#58a6ff"/>
+    <text x="96" y="-6" fill="#79c0ff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="600" text-anchor="middle">Query Heads (8)</text>
+
+    <!-- Connectors -->
+    <line x1="14" y1="32" x2="14" y2="60" stroke="#8b949e" stroke-width="1"/>
+    <line x1="46" y1="32" x2="46" y2="60" stroke="#8b949e" stroke-width="1"/>
+    <line x1="78" y1="32" x2="78" y2="60" stroke="#8b949e" stroke-width="1"/>
+    <line x1="110" y1="32" x2="110" y2="60" stroke="#8b949e" stroke-width="1"/>
+    <line x1="142" y1="32" x2="142" y2="60" stroke="#8b949e" stroke-width="1"/>
+    <line x1="174" y1="32" x2="174" y2="60" stroke="#8b949e" stroke-width="1"/>
+
+    <!-- 6 Key/Value Heads -->
+    <rect x="0" y="60" width="28" height="32" rx="4" fill="#238636" fill-opacity="0.3" stroke="#3fb950"/>
+    <rect x="32" y="60" width="28" height="32" rx="4" fill="#238636" fill-opacity="0.3" stroke="#3fb950"/>
+    <rect x="64" y="60" width="28" height="32" rx="4" fill="#238636" fill-opacity="0.3" stroke="#3fb950"/>
+    <rect x="96" y="60" width="28" height="32" rx="4" fill="#238636" fill-opacity="0.3" stroke="#3fb950"/>
+    <rect x="128" y="60" width="28" height="32" rx="4" fill="#238636" fill-opacity="0.3" stroke="#3fb950"/>
+    <rect x="160" y="60" width="28" height="32" rx="4" fill="#238636" fill-opacity="0.3" stroke="#3fb950"/>
+    <text x="96" y="108" fill="#7ee787" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="600" text-anchor="middle">Key / Value Heads (8)</text>
+  </g>
+
+  <!-- MHA Stats -->
+  <rect x="42" y="275" width="201" height="130" rx="6" fill="#21262d"/>
+  <text x="52" y="298" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">Ratio: <tspan fill="#58a6ff" font-weight="700">1 Query to 1 KV Head</tspan></text>
+  <text x="52" y="320" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">KV Cache Size: <tspan fill="#f85149" font-weight="700">100% (Baseline)</tspan></text>
+  <text x="52" y="342" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">Throughput: <tspan fill="#f85149">Bottlenecked</tspan></text>
+  <text x="52" y="364" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10">8 concurrent users consume</text>
+  <text x="52" y="378" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10">80 GB VRAM on caching alone.</text>
+
+  <!-- ================= 2. Grouped-Query Attention (GQA) ================= -->
+  <!-- Highlighted Card -->
+  <rect x="285" y="75" width="230" height="345" rx="8" fill="#161b22" stroke="#3fb950" stroke-width="2"/>
+  <rect x="365" y="65" width="70" height="18" rx="4" fill="#238636"/>
+  <text x="400" y="78" fill="#ffffff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="700" text-anchor="middle">STANDARD</text>
+
+  <text x="400" y="100" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="700" text-anchor="middle">Grouped-Query (GQA)</text>
+  <text x="400" y="118" fill="#3fb950" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" text-anchor="middle">Llama 3 • Mistral • DeepSeek</text>
+
+  <!-- Visual Representation: 6 Qs grouped into 2 KV heads (3:1 Ratio) -->
+  <g transform="translate(305, 135)">
+    <!-- 6 Q Heads -->
+    <rect x="0" y="0" width="28" height="32" rx="4" fill="#1f6feb" fill-opacity="0.3" stroke="#58a6ff"/>
+    <rect x="32" y="0" width="28" height="32" rx="4" fill="#1f6feb" fill-opacity="0.3" stroke="#58a6ff"/>
+    <rect x="64" y="0" width="28" height="32" rx="4" fill="#1f6feb" fill-opacity="0.3" stroke="#58a6ff"/>
+    <rect x="96" y="0" width="28" height="32" rx="4" fill="#1f6feb" fill-opacity="0.3" stroke="#58a6ff"/>
+    <rect x="128" y="0" width="28" height="32" rx="4" fill="#1f6feb" fill-opacity="0.3" stroke="#58a6ff"/>
+    <rect x="160" y="0" width="28" height="32" rx="4" fill="#1f6feb" fill-opacity="0.3" stroke="#58a6ff"/>
+    <text x="96" y="-6" fill="#79c0ff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="600" text-anchor="middle">Query Heads (8)</text>
+
+    <!-- Grouped Connectors -->
+    <!-- Group 1 (Heads 1, 2, 3 -> KV 1) -->
+    <path d="M 14 32 L 46 60" stroke="#3fb950" stroke-width="1.5"/>
+    <path d="M 46 32 L 46 60" stroke="#3fb950" stroke-width="1.5"/>
+    <path d="M 78 32 L 46 60" stroke="#3fb950" stroke-width="1.5"/>
+
+    <!-- Group 2 (Heads 4, 5, 6 -> KV 2) -->
+    <path d="M 110 32 L 142 60" stroke="#3fb950" stroke-width="1.5"/>
+    <path d="M 142 32 L 142 60" stroke="#3fb950" stroke-width="1.5"/>
+    <path d="M 174 32 L 142 60" stroke="#3fb950" stroke-width="1.5"/>
+
+    <!-- 2 Shared Key/Value Heads -->
+    <rect x="20" y="60" width="52" height="32" rx="4" fill="#238636" fill-opacity="0.4" stroke="#3fb950" stroke-width="2"/>
+    <text x="46" y="80" fill="#7ee787" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" text-anchor="middle">KV 1</text>
+
+    <rect x="116" y="60" width="52" height="32" rx="4" fill="#238636" fill-opacity="0.4" stroke="#3fb950" stroke-width="2"/>
+    <text x="142" y="80" fill="#7ee787" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" text-anchor="middle">KV 2</text>
+
+    <text x="96" y="108" fill="#7ee787" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="600" text-anchor="middle">Shared KV Heads (2 Groups)</text>
+  </g>
+
+  <!-- GQA Stats -->
+  <rect x="297" y="275" width="206" height="130" rx="6" fill="#21262d"/>
+  <text x="307" y="298" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">Ratio: <tspan fill="#3fb950" font-weight="700">4-8 Queries share 1 KV</tspan></text>
+  <text x="307" y="320" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">KV Cache Size: <tspan fill="#3fb950" font-weight="700">75% to 87.5% Smaller!</tspan></text>
+  <text x="307" y="342" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">Accuracy: <tspan fill="#3fb950">99.8% of MHA Quality</tspan></text>
+  <text x="307" y="364" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10">Supports 4x-8x higher user</text>
+  <text x="307" y="378" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10">concurrency on identical GPUs.</text>
+
+  <!-- ================= 3. Multi-Query Attention (MQA) ================= -->
+  <rect x="545" y="75" width="225" height="345" rx="8" fill="#161b22" stroke="#30363d" stroke-width="1.5"/>
+  <text x="657" y="100" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="14" font-weight="700" text-anchor="middle">Multi-Query (MQA)</text>
+  <text x="657" y="118" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" text-anchor="middle">Falcon • StarCoder</text>
+
+  <!-- Visual Representation: 6 Qs all funnel to 1 single KV Head -->
+  <g transform="translate(560, 135)">
+    <!-- 6 Q Heads -->
+    <rect x="0" y="0" width="28" height="32" rx="4" fill="#1f6feb" fill-opacity="0.3" stroke="#58a6ff"/>
+    <rect x="32" y="0" width="28" height="32" rx="4" fill="#1f6feb" fill-opacity="0.3" stroke="#58a6ff"/>
+    <rect x="64" y="0" width="28" height="32" rx="4" fill="#1f6feb" fill-opacity="0.3" stroke="#58a6ff"/>
+    <rect x="96" y="0" width="28" height="32" rx="4" fill="#1f6feb" fill-opacity="0.3" stroke="#58a6ff"/>
+    <rect x="128" y="0" width="28" height="32" rx="4" fill="#1f6feb" fill-opacity="0.3" stroke="#58a6ff"/>
+    <rect x="160" y="0" width="28" height="32" rx="4" fill="#1f6feb" fill-opacity="0.3" stroke="#58a6ff"/>
+    <text x="96" y="-6" fill="#79c0ff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="600" text-anchor="middle">Query Heads (8)</text>
+
+    <!-- All funnel to 1 Head -->
+    <path d="M 14 32 L 96 60" stroke="#d29922" stroke-width="1.5"/>
+    <path d="M 46 32 L 96 60" stroke="#d29922" stroke-width="1.5"/>
+    <path d="M 78 32 L 96 60" stroke="#d29922" stroke-width="1.5"/>
+    <path d="M 110 32 L 96 60" stroke="#d29922" stroke-width="1.5"/>
+    <path d="M 142 32 L 96 60" stroke="#d29922" stroke-width="1.5"/>
+    <path d="M 174 32 L 96 60" stroke="#d29922" stroke-width="1.5"/>
+
+    <!-- 1 Single Key/Value Head -->
+    <rect x="66" y="60" width="60" height="32" rx="4" fill="#d29922" fill-opacity="0.3" stroke="#d29922" stroke-width="1.5"/>
+    <text x="96" y="80" fill="#e3b341" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="700" text-anchor="middle">Single KV</text>
+
+    <text x="96" y="108" fill="#e3b341" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="600" text-anchor="middle">All Queries Share 1 Head</text>
+  </g>
+
+  <!-- MQA Stats -->
+  <rect x="557" y="275" width="201" height="130" rx="6" fill="#21262d"/>
+  <text x="567" y="298" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">Ratio: <tspan fill="#d29922" font-weight="700">All Queries share 1 KV</tspan></text>
+  <text x="567" y="320" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">KV Cache Size: <tspan fill="#3fb950" font-weight="700">90%+ Reduction</tspan></text>
+  <text x="567" y="342" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11">Accuracy: <tspan fill="#f85149">Noticeable Quality Drop</tspan></text>
+  <text x="567" y="364" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10">Severe capacity loss on</text>
+  <text x="567" y="378" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10">complex reasoning &amp; coding.</text>
+</svg>

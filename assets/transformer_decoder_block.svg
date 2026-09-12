@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 620" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+    <linearGradient id="attnGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1f6feb" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#388bfd" stop-opacity="0.1"/>
+    </linearGradient>
+    <linearGradient id="ffnGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a371f7" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#8957e5" stop-opacity="0.1"/>
+    </linearGradient>
+    <linearGradient id="normGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#238636" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#2ea043" stop-opacity="0.1"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#8b949e"/>
+    </marker>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 8 5 L 0 8.5 z" fill="#58a6ff"/>
+    </marker>
+  </defs>
+
+  <!-- Background Card -->
+  <rect width="800" height="620" rx="12" fill="url(#bgGrad)" stroke="#30363d" stroke-width="1.5"/>
+
+  <!-- Title -->
+  <text x="400" y="32" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="18" font-weight="700" text-anchor="middle">Modern Decoder-Only Transformer Block (Frontier LLM Architecture)</text>
+  <text x="400" y="52" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" text-anchor="middle">Pre-LN Architecture with RMSNorm, RoPE, Grouped-Query Attention (GQA) &amp; SwiGLU FFN</text>
+
+  <!-- Main Block Boundary (Repeated N times) -->
+  <rect x="180" y="70" width="440" height="420" rx="10" fill="#161b22" stroke="#388bfd" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <text x="590" y="92" fill="#58a6ff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" text-anchor="end">x N Layers (e.g. 32 to 80 layers)</text>
+
+  <!-- ================= RESIDUAL 1 (Left Skip Highway) ================= -->
+  <!-- Start at bottom of block (x=240, y=470), goes up to Add 1 (x=380, y=260) -->
+  <path d="M 400 480 L 220 480 L 220 270 L 375 270" fill="none" stroke="#58a6ff" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrowBlue)"/>
+  <text x="210" y="380" fill="#58a6ff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="600" transform="rotate(-90 210 380)" text-anchor="middle">Residual Highway (+)</text>
+
+  <!-- ================= RESIDUAL 2 (Right Skip Highway) ================= -->
+  <!-- Start above Add 1 (x=400, y=250), goes up to Add 2 (x=400, y=105) -->
+  <path d="M 400 250 L 580 250 L 580 115 L 425 115" fill="none" stroke="#a371f7" stroke-width="2" stroke-dasharray="4,4" marker-end="url(#arrow)"/>
+  <text x="590" y="180" fill="#a371f7" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" font-weight="600" transform="rotate(90 590 180)" text-anchor="middle">Residual Highway (+)</text>
+
+  <!-- ================= INSIDE TRANSFORMER LAYER ================= -->
+  <!-- 1. RMSNorm 1 (Pre-LN) -->
+  <rect x="280" y="425" width="240" height="34" rx="6" fill="url(#normGrad)" stroke="#3fb950" stroke-width="1.5"/>
+  <text x="400" y="446" fill="#7ee787" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" text-anchor="middle">RMSNorm 1 (Pre-Normalization)</text>
+
+  <line x1="400" y1="425" x2="400" y2="395" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- 2. Masked Self-Attention / GQA with RoPE -->
+  <rect x="270" y="330" width="260" height="65" rx="8" fill="url(#attnGrad)" stroke="#58a6ff" stroke-width="2"/>
+  <text x="400" y="352" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="13" font-weight="700" text-anchor="middle">Grouped-Query Attention (GQA)</text>
+  <text x="400" y="370" fill="#79c0ff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" text-anchor="middle">Causal Mask + RoPE (Rotary Embeddings)</text>
+  <text x="400" y="386" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" text-anchor="middle">Softmax( (Q · Kᵀ) / √dₖ ) · V</text>
+
+  <line x1="400" y1="330" x2="400" y2="285" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- Add 1 (+) -->
+  <circle cx="400" cy="270" r="14" fill="#21262d" stroke="#58a6ff" stroke-width="2"/>
+  <text x="400" y="275" fill="#58a6ff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="16" font-weight="700" text-anchor="middle">+</text>
+
+  <line x1="400" y1="256" x2="400" y2="225" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- 3. RMSNorm 2 (Pre-LN for FFN) -->
+  <rect x="280" y="190" width="240" height="34" rx="6" fill="url(#normGrad)" stroke="#3fb950" stroke-width="1.5"/>
+  <text x="400" y="211" fill="#7ee787" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" text-anchor="middle">RMSNorm 2 (Pre-Normalization)</text>
+
+  <line x1="400" y1="190" x2="400" y2="165" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- 4. SwiGLU Feed-Forward Network -->
+  <rect x="270" y="125" width="260" height="40" rx="8" fill="url(#ffnGrad)" stroke="#a371f7" stroke-width="2"/>
+  <text x="400" y="143" fill="#f0f6fc" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="700" text-anchor="middle">SwiGLU Feed-Forward Network</text>
+  <text x="400" y="157" fill="#d2a8ff" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="10" text-anchor="middle">Swish(x · W_gate) ⊗ (x · W_up) · W_down</text>
+
+  <line x1="400" y1="125" x2="400" y2="120" stroke="#8b949e" stroke-width="1.5"/>
+
+  <!-- Add 2 (+) -->
+  <circle cx="400" cy="115" r="14" fill="#21262d" stroke="#a371f7" stroke-width="2"/>
+  <text x="400" y="120" fill="#a371f7" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="16" font-weight="700" text-anchor="middle">+</text>
+
+  <!-- ================= INPUT PIPELINE (Bottom) ================= -->
+  <line x1="400" y1="575" x2="400" y2="535" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <text x="400" y="595" fill="#8b949e" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" text-anchor="middle">Input Tokens: [ "The", " transformer", " model" ]</text>
+
+  <rect x="260" y="505" width="280" height="30" rx="6" fill="#21262d" stroke="#30363d" stroke-width="1.5"/>
+  <text x="400" y="525" fill="#c9d1d9" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="12" font-weight="600" text-anchor="middle">Token Embedding + RoPE Rotation</text>
+
+  <line x1="400" y1="505" x2="400" y2="460" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <!-- ================= OUTPUT PIPELINE (Top) ================= -->
+  <line x1="400" y1="101" x2="400" y2="75" stroke="#8b949e" stroke-width="1.5" marker-end="url(#arrow)"/>
+  
+  <rect x="280" y="62" width="240" height="24" rx="4" fill="#21262d" stroke="#3fb950" stroke-width="1"/>
+  <text x="400" y="78" fill="#7ee787" font-family="-apple-system, BlinkMacSystemFont, sans-serif" font-size="11" font-weight="600" text-anchor="middle">Final RMSNorm</text>
+
+  <!-- Output Logits & Softmax -->
+  <line x1="400" y1="62" x2="400" y2="38" stroke="#8b949e" stroke-width="1.5"/>
+</svg>
